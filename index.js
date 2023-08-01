@@ -109,7 +109,7 @@ function getMeta(id, type) {
 app
   .get("/manifest.json", (req, res) => {
     var json = {
-      id: "mikmc.od.org+°",
+      id: "mikmc.od.org+++",
       version: "3.0.0",
       name: "Jacket doing his things",
       description: "Movie & TV Streams from Jackett",
@@ -119,7 +119,10 @@ app
       idPrefixes: ["tt"],
       catalogs: [],
     };
-    return res.json(json);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    res.setHeader("Content-Type", "application/json");
+    return res.send(json);
   })
   .get("/stream/:type/:id", async (req, res) => {
     media = req.params.type;
