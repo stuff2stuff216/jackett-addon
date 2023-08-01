@@ -40,11 +40,11 @@ const toStream = (parsed, tor, type, s, e) => {
     type: type,
     infoHash: infoHash,
     fileIdx: index == -1 ? 1 : index,
-    // sources: (parsed.announce || [])
-    //   .map((x) => {
-    //     return "tracker:" + x;
-    //   })
-    //   .concat(["dht:" + infoHash]),
+    sources: (parsed.announce || [])
+      .map((x) => {
+        return "tracker:" + x;
+      })
+      .concat(["dht:" + infoHash]),
     title: title,
     behaviorHints: {
       bingeGroup: `Jackett-Addon|${infoHash}`,
