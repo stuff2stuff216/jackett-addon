@@ -71,18 +71,24 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
 let stream_results = [];
 let torrent_results = [];
 
-let host = "http://82.123.61.186:9117";
-let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
+// let host = "http://82.123.61.186:9117";
+// let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
+let host = "http://1.14.93.42:9117";
+let apiKey = "k6n8vd2swiru4uonwgjph8cby1tt4cfr";
+
+// ${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=uhdbits&_=1690837706300
+
+// http://1.14.93.42:9004/api/v2.0/indexers/test:passed/results?apikey=k6n8vd2swiru4uonwgjph8cby1tt4cfr&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&_=1690917898076
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=uhdbits&_=1690837706300`;
+  let url = `http://1.14.93.42:9004/api/v2.0/indexers/test:passed/results?apikey=k6n8vd2swiru4uonwgjph8cby1tt4cfr&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&_=1690917898076`;
   return await fetch(url, {
     headers: {
       accept: "*/*",
       "accept-language": "en-US,en;q=0.9",
       "x-requested-with": "XMLHttpRequest",
       cookie:
-        "Jackett=CfDJ8I6Mb7LP45FJnvigakrTj74ePZu6V38BUX6bPJhcgU1tEfJrQEBs03y7d5sEdV4E6r6h3yirPu1TmMrG8iq_wCXuNjkHTIA8A5eZaBwr1tRIi73IrBkZZPPKssM-p2odOSxvh3uP7Kq9X0fcyJ0z-NmGqYMj5d-wD44_cXburMbuiqwqMZGV_AWDQiyHqDT3wPHzVlOaJ5waB_slVpKV3QJzpCNSePdp1B1cgj-EdA2T5_QohioaFV_eTeqydYO3u0TnHJDeuRJqpsTF9z05pJlQj5rV3ir3TiVcsfzvpyQlM9Fc3wLXbmCg06n8RF0rprlAG9lCTQ7X_6RNaY1jo4U",
+        "Jackett=CfDJ8AG_XUDhxS5AsRKz0FldsDJIHUJANrfynyi54VzmYuhr5Ha5Uaww2hSQytMR8fFWjPvDH2lKCzaQhRYI9RuK613PZxJWz2tgHqg1wUAcPTMfi8b_8rm1Igw1-sZB_MnimHHK7ZSP7HfkWicMDaJ4bFGZwUf0xJOwcgjrwcUcFzzsVSTALt97-ibhc7PUn97v5AICX2_jsd6khO8TZosaPFt0cXNgNofimAkr5l6yMUjShg7R3TpVtJ1KxD8_0_OyBjR1mwtcxofJam2aZeFqVRxluD5hnzdyxOWrMRLSGzMPMKiaPXNCsxWy_yQhZhE66U_bVFadrsEeQqqaWb3LIFA",
     },
     referrerPolicy: "no-referrer",
     // body: null,
@@ -166,6 +172,8 @@ app
 
     let result = await fetchTorrent(query);
 
+    // console.log({ result });
+
     let stream_results = await Promise.all(
       result.map((torrent) => {
         return streamFromMagnet(torrent, torrent["Link"], media, s, e);
@@ -176,6 +184,8 @@ app
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
+
+    // console.log({stream_results})
 
     return res.send({ streams: stream_results });
   })
