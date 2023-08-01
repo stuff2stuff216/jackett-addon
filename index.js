@@ -3,6 +3,7 @@ const parseTorrent = require("parse-torrent");
 const express = require("express");
 const app = express();
 const fetch = require("node-fetch");
+// var torrentStream = require("torrent-stream");
 
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -12,18 +13,33 @@ const type_ = {
   TV: "series",
 };
 
-const toStream = (parsed, tor, type) => {
+const toStream = (parsed, tor, type, s, e) => {
   const infoHash = parsed.infoHash.toLowerCase();
   let title = tor.extraTag || parsed.name;
+  let index = -1;
+  if (media == "series") {
+    index = (parsed.files ?? []).findIndex((element, index) => {
+      return (
+        element["name"]?.toLowerCase()?.includes(`s0${s}`) &&
+        element["name"]?.toLowerCase()?.includes(`e0${e}`) &&
+        (element["name"]?.toLowerCase()?.includes(`.mkv`) ||
+          element["name"]?.toLowerCase()?.includes(`.mp4`) ||
+          element["name"]?.toLowerCase()?.includes(`.avi`) ||
+          element["name"]?.toLowerCase()?.includes(`.flv`))
+      );
+    });
+
+    title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
+  }
+
   const subtitle = "Seeds: " + tor["Seeders"] + " / Peers: " + tor["Peers"];
   title += (title.indexOf("\n") > -1 ? "\r\n" : "\r\n\r\n") + subtitle;
-
-  // console.log(parsed.files);
 
   return {
     name: tor["Tracker"],
     type: type,
     infoHash: infoHash,
+    fileIdx: index == -1 ? 1 : index,
     sources: (parsed.announce || [])
       .map((x) => {
         return "tracker:" + x;
@@ -33,14 +49,14 @@ const toStream = (parsed, tor, type) => {
   };
 };
 
-const streamFromMagnet = (tor, uri, type) => {
+const streamFromMagnet = (tor, uri, type, s, e) => {
   return new Promise((resolve, reject) => {
     if (uri.startsWith("magnet:?")) {
-      resolve(toStream(parseTorrent(uri), tor, type));
+      resolve(toStream(parseTorrent(uri), tor, type, s, e));
     }
     parseTorrent.remote(uri, (err, parsed) => {
       if (!err) {
-        resolve(toStream(parsed, tor, type));
+        resolve(toStream(parsed, tor, type, s, e));
       } else {
         resolve(false);
       }
@@ -54,7 +70,7 @@ let torrent_results = [];
 let host = "http://82.123.61.186:9117";
 let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
-let fetchTorrent = async (query, season, ep) => {
+let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=uhdbits&_=1690837706300`;
   return await fetch(url, {
     headers: {
@@ -144,11 +160,11 @@ app
     }
     query = encodeURIComponent(query);
 
-    let result = await fetchTorrent(query, s, e);
+    let result = await fetchTorrent(query);
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        return streamFromMagnet(torrent, torrent["Link"], media);
+        return streamFromMagnet(torrent, torrent["Link"], media, s, e);
       })
     );
 
