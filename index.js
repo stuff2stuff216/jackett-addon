@@ -1,8 +1,8 @@
 require("dotenv").config();
 const parseTorrent = require("parse-torrent");
 const express = require("express");
-const fetch = require("node-fetch");
 const app = express();
+const fetch = require("node-fetch");
 
 const bodyParser = require("body-parser");
 const cors = require("cors");
