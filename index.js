@@ -130,8 +130,11 @@ app
     let id = req.params.id;
 
     const [tt, s, e] = id.split(":");
+    tt = tt.split(".")[0];
     let query = "";
     let meta = await getMeta(tt, media);
+
+    console.log({ meta });
     query = meta?.name;
 
     if (media == "movie") {
