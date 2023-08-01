@@ -48,23 +48,53 @@ const toStream = (parsed, tor, type, s, e) => {
     title: title,
     behaviorHints: {
       bingeGroup: `Jackett-Addon|${infoHash}`,
-      notWebReady: true,
+      // notWebReady: true,
     },
   };
 };
 
-const streamFromMagnet = (tor, uri, type, s, e) => {
-  return new Promise((resolve, reject) => {
-    if (uri.startsWith("magnet:?")) {
-      resolve(toStream(parseTorrent(uri), tor, type, s, e));
+let isRedirect = async (url) => {
+  const response = await fetch(url, {
+    redirect: "manual",
+  });
+
+  if (response.status === 301 || response.status === 302) {
+    const locationURL = new URL(response.headers.get("location"), response.url);
+    // const response2 = await fetch(locationURL, { redirect: "manual" });
+    if (locationURL.href.startsWith("http")) {
+      await isRedirect(locationURL);
+    } else {
+      return locationURL.href;
     }
-    parseTorrent.remote(uri, (err, parsed) => {
-      if (!err) {
-        resolve(toStream(parsed, tor, type, s, e));
+  } else if (response.status >= 200 && response.status < 300) {
+    return response.url;
+  } else {
+    return null;
+  }
+};
+
+const streamFromMagnet = (tor, uri, type, s, e) => {
+  return new Promise(async (resolve, reject) => {
+    //follow redirection cause some http url sent magnet url
+    let realUrl = uri?.startsWith("magnet:?") ? uri : await isRedirect(uri);
+
+    if (realUrl) {
+      if (realUrl?.startsWith("magnet:?")) {
+        resolve(toStream(parseTorrent(realUrl), tor, type, s, e));
+      } else if (realUrl?.startsWith("http")) {
+        parseTorrent.remote(realUrl, (err, parsed) => {
+          if (!err) {
+            resolve(toStream(parsed, tor, type, s, e));
+          } else {
+            resolve(null);
+          }
+        });
       } else {
-        resolve(false);
+        resolve(realUrl);
       }
-    });
+    } else {
+      resolve(null);
+    }
   });
 };
 
@@ -73,15 +103,15 @@ let torrent_results = [];
 
 // let host = "http://82.123.61.186:9117";
 // let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
-let host = "http://1.14.93.42:9117";
-let apiKey = "k6n8vd2swiru4uonwgjph8cby1tt4cfr";
 
-// ${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=uhdbits&_=1690837706300
+let host = "http://1.60.232.137:9117";
+let apiKey = "yw3nttvisxnkdn12eqvyidkjdm1l0xt7";
 
-// http://1.14.93.42:9004/api/v2.0/indexers/test:passed/results?apikey=k6n8vd2swiru4uonwgjph8cby1tt4cfr&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&_=1690917898076
+// http://1.60.232.137:9117/api/v2.0/indexers/test:passed/results?apikey=yw3nttvisxnkdn12eqvyidkjdm1l0xt7&Query=dark%20knight&Category%5B%5D=2000&Category%5B%5D=5000&_=1690919803407
 
 let fetchTorrent = async (query) => {
-  let url = `http://1.14.93.42:9004/api/v2.0/indexers/test:passed/results?apikey=k6n8vd2swiru4uonwgjph8cby1tt4cfr&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&_=1690917898076`;
+  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=yw3nttvisxnkdn12eqvyidkjdm1l0xt7&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000`;
+  // console.log({ url });
   return await fetch(url, {
     headers: {
       accept: "*/*",
@@ -96,6 +126,7 @@ let fetchTorrent = async (query) => {
   })
     .then((res) => res.json())
     .then(async (results) => {
+      // console.log(results["Results"].length);
       if (results["Results"].length != 0) {
         torrent_results = await Promise.all(
           results["Results"].map((result) => {
@@ -107,6 +138,7 @@ let fetchTorrent = async (query) => {
                 Seeders: result["Seeders"],
                 Peers: result["Peers"],
                 Link: result["Link"],
+                MagnetUri: result["MagnetUri"],
               });
             });
           })
@@ -172,13 +204,21 @@ app
 
     let result = await fetchTorrent(query);
 
-    // console.log({ result });
-
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        return streamFromMagnet(torrent, torrent["Link"], media, s, e);
+        if (torrent["Link"] != "" || torrent["MagnetUri"] != "") {
+          return streamFromMagnet(
+            torrent,
+            torrent["Link"] || torrent["MagnetUri"],
+            media,
+            s,
+            e
+          );
+        }
       })
     );
+
+    stream_results = Array.from(new Set(stream_results));
 
     // console.log(stream_results);
     res.setHeader("Access-Control-Allow-Origin", "*");
