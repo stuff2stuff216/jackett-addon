@@ -126,14 +126,14 @@ app
   })
   .get("/stream/:type/:id", async (req, res) => {
     media = req.params.type;
-    console.log({ meta: req.params.id });
     let id = req.params.id;
+    id = id.replace(".json", "");
 
-    const [tt, s, e] = id.split(":");
-    tt = tt.split(".")[0];
+    let [tt, s, e] = id.split(":");
     let query = "";
     let meta = await getMeta(tt, media);
 
+    console.log({ meta: id });
     console.log({ meta });
     query = meta?.name;
 
