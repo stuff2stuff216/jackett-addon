@@ -152,9 +152,12 @@ app
       })
     );
 
-    console.log(stream_results);
+    // console.log(stream_results);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    res.setHeader("Content-Type", "application/json");
 
-    res.json({ streams: stream_results });
+    return res.send({ streams: stream_results });
   })
   .listen(process.env.PORT || 3000, () => {
     console.log("The server is working on " + process.env.PORT || 3000);
