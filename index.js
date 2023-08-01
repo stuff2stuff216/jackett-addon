@@ -46,6 +46,10 @@ const toStream = (parsed, tor, type, s, e) => {
     //   })
     //   .concat(["dht:" + infoHash]),
     title: title,
+    behaviorHints: {
+      bingeGroup: `Jackett-Addon|${infoHash}`,
+      notWebReady: true,
+    },
   };
 };
 
