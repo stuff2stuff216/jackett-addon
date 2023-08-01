@@ -126,7 +126,7 @@ app
   })
   .get("/stream/:type/:id", async (req, res) => {
     media = req.params.type;
-    console.log({ id });
+    console.log({ meta: req.params.id });
     let id = req.params.id;
 
     const [tt, s, e] = id.split(":");
