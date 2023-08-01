@@ -1,0 +1,98 @@
+const { XMLParser } = require("fast-xml-parser");
+
+const API_KEY = "5TBJHHKN06SK2OAIONAV7890SR";
+let media = "";
+let host = `http://130.44.131.245:5076`;
+let imdb = "";
+let category = "";
+let season = "1";
+let ep = "1";
+let season_ep = (media = "tvsearch" ? `&season=${season}&ep=${ep}` : "");
+
+async function fillParams(id, type) {
+  var [tt, s, e] = id.split(":");
+  imdb = tt.replace("tt", "");
+  season = s;
+  ep = e;
+
+  if (type == "series") {
+    media = "tvsearch";
+    category = "5000";
+  } else {
+    media = "movie";
+    category = "2000";
+  }
+}
+
+async function getNZBMeta() {
+  return await fetch(
+    "http://130.44.131.245:5076/api?apikey=5TBJHHKN06SK2OAIONAV7890SR&t=movie&imdbid=0468569&cat=2000",
+    // "http://130.44.131.245:5076/api?apikey=5TBJHHKN06SK2OAIONAV7890SR&t=tvsearch&imdbid=11712058&cat=5000&season=1&ep=3",
+    {
+      method: "GET",
+      headers: {
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept-Language": "en-US,en;q=0.9",
+        //Host: "130.44.131.245:5076",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent":
+          "Mozilla/ 5.0(X11; Linux x86_64) AppleWebKit/537.36(KHTML,like Gecko) Chrome/115.0.0.0 Safari/537.36 OPR/101.0.0.0",
+      },
+    }
+  )
+    .then((res) => res.text())
+    .then(async (cont) => await parseNZBXML(cont))
+    .catch((err) => console.log({ err }));
+}
+
+// 72.48.100.134:6789
+// 217.120.123.73:6789
+// 82.1.101.232:6789
+// 161.97.120.105:6789
+// 86.90.219.44:6789
+// 70.162.49.46:6789
+// 104.139.43.71:6789
+// 192.99.35.194:6789
+// 108.93.65.91:6789
+// 159.196.206.45:6789
+// 86.90.151.55:6789
+// 84.83.145.4:6789
+// 89.163.242.79:6789
+// 110.146.203.35:6789
+// 76.71.2.183:6789
+
+async function parseNZBXML(meta = "") {
+  if (meta != "") {
+    let parser = new XMLParser();
+    let xmlparsed = parser.parse(meta);
+
+    let items = xmlparsed["rss"]["channel"]["item"];
+
+    let nzbStreams = [];
+
+    items.forEach((item) => {
+      nzbStreams.push({
+        name: item?.title,
+        date: item?.pubDate,
+        description: item?.description
+          ?.replaceAll(/<\/?[^>]+(>|$)/gi, "")
+          ?.replaceAll("\n", "")
+          ?.replaceAll("\t", "")
+          ?.trim(),
+        type: item?.category,
+        size: item?.size,
+        url: item?.link,
+      });
+    });
+
+    return nzbStreams;
+  }
+}
+
+(async () => {
+  let nzbMetas = await getNZBMeta();
+  console.log(nzbMetas);
+})();
+// parseNZBXML(nzbMetas);

@@ -1,0 +1,5 @@
+// http://82.123.61.186:9117/api/v2.0/indexers/test:passed/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=${query}&Category%5B%5D=2000&Category%5B%5D=2040&Category%5B%5D=2045&Category%5B%5D=2050&Category%5B%5D=2070&Category%5B%5D=2080&Category%5B%5D=5000&Category%5B%5D=5030&Category%5B%5D=5040&Category%5B%5D=5045&Category%5B%5D=5050&Tracker%5B%5D=abnormal&Tracker%5B%5D=avistaz&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=broadcity&Tracker%5B%5D=filelist&Tracker%5B%5D=karagarga&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=nebulanceapi&Tracker%5B%5D=passthepopcorn&Tracker%5B%5D=uhdbits&Tracker%5B%5D=xthor-api
+
+// http://82.123.61.186:9117/api/v2.0/indexers/test:passed/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&_=1690837706299
+
+http://82.123.61.186:9117/api/v2.0/indexers/test:passed/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones%20S01&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=beyond-hd-api&Tracker%5B%5D=blutopia-api&Tracker%5B%5D=morethantv-api&Tracker%5B%5D=uhdbits&_=1690837706300
