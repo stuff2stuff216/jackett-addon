@@ -126,6 +126,7 @@ app
   })
   .get("/stream/:type/:id", async (req, res) => {
     media = req.params.type;
+    console.log({ id });
     let id = req.params.id;
 
     const [tt, s, e] = id.split(":");
@@ -148,7 +149,7 @@ app
       })
     );
 
-    // console.log(stream_results);
+    console.log(stream_results);
 
     res.json({ streams: stream_results });
   })
