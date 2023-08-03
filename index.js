@@ -33,7 +33,11 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
     parsed.files = res;
     engine.destroy();
   }
-  // console.log({ uri });
+
+  console.log("----------------------");
+  console.log(title);
+  console.log({ uri });
+  console.log("----------------------");
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
