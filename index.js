@@ -17,6 +17,7 @@ const toStream = (parsed, tor, type, s, e) => {
   const infoHash = parsed.infoHash.toLowerCase();
   let title = tor.extraTag || parsed.name;
   let index = -1;
+
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
       return (
@@ -29,6 +30,10 @@ const toStream = (parsed, tor, type, s, e) => {
       );
     });
 
+    if (index == -1) {
+      return null;
+    }
+
     title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
   }
 
@@ -39,7 +44,7 @@ const toStream = (parsed, tor, type, s, e) => {
     name: tor["Tracker"],
     type: type,
     infoHash: infoHash,
-    fileIdx: index == -1 ? 1 : index,
+    fileIdx: index == -1 ? 0 : index,
     sources: (parsed.announce || [])
       .map((x) => {
         return "tracker:" + x;
@@ -100,11 +105,11 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
 let stream_results = [];
 let torrent_results = [];
 
-// let host = "http://82.123.61.186:9117";
-// let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
+let host = "http://82.123.61.186:9117";
+let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
-let host = "http://1.202.50.183:9117";
-let apiKey = "ht0imkbrces8ypsmskunjr1zj2l9ecf4";
+// let host = "http://82.123.61.186:9117";
+// let apiKey = "ht0imkbrces8ypsmskunjr1zj2l9ecf4";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000`;
