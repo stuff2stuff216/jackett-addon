@@ -85,12 +85,14 @@ let isRedirect = async (url) => {
   try {
     const controller = new AbortController();
     // 5 second timeout:
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(url, {
       redirect: "manual",
       signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (response.status === 301 || response.status === 302) {
       const locationURL = new URL(
@@ -127,7 +129,7 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
           if (!err) {
             resolve(toStream(parsed, realUrl, tor, type, s, e));
           } else {
-            console.log("err parsing http");
+            // console.log("err parsing http");
             resolve(null);
           }
         });
