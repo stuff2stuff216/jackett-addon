@@ -28,7 +28,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 50000);
+      }, 100000);
     });
 
     console.log({ res });
