@@ -28,13 +28,11 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 10000);
+      }, 20000);
     });
     parsed.files = res;
     engine.destroy();
   }
-
-  
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -58,10 +56,10 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
   const subtitle = "Seeds: " + tor["Seeders"] + " / Peers: " + tor["Peers"];
   title += (title.indexOf("\n") > -1 ? "\r\n" : "\r\n\r\n") + subtitle;
 
-  console.log("----------------------");
-  console.log(title);
-  console.log({ uri });
-  console.log("----------------------");
+  // console.log("----------------------");
+  // console.log(title);
+  // console.log({ uri });
+  // console.log("----------------------");
 
   return {
     name: tor["Tracker"],
@@ -149,7 +147,7 @@ const host = "http://82.123.61.186:9117";
 const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=solidtorrents`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=solidtorrents&Tracker%5B%5D=nyaasi`;
 
   return await fetch(url, {
     headers: {
@@ -267,7 +265,7 @@ app
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
 
-    console.log({stream_results})
+    console.log({ stream_results: stream_results.length });
 
     return res.send({ streams: stream_results });
   })
