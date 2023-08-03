@@ -28,7 +28,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 80000); // Too slooooow, the server is too slow
+      }, 70000); // Too slooooow, the server is too slow
     });
 
     // console.log({ res });
