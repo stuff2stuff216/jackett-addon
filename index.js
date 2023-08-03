@@ -28,7 +28,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 100000); // Too slooooow, the server is too slow
+      }, 80000); // Too slooooow, the server is too slow
     });
 
     // console.log({ res });
@@ -105,8 +105,8 @@ let isRedirect = async (url) => {
     } else if (response.status >= 200 && response.status < 300) {
       return response.url;
     } else {
-      return response.url;
-      // return null;
+      // return response.url;
+      return null;
     }
   } catch (error) {
     // console.log({ error });
