@@ -28,8 +28,10 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 20000);
+      }, 50000);
     });
+
+    console.log({ res });
     parsed.files = res;
     engine.destroy();
   }
