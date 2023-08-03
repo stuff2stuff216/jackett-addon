@@ -34,10 +34,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
     engine.destroy();
   }
 
-  console.log("----------------------");
-  console.log(title);
-  console.log({ uri });
-  console.log("----------------------");
+  
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -60,6 +57,11 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
   const subtitle = "Seeds: " + tor["Seeders"] + " / Peers: " + tor["Peers"];
   title += (title.indexOf("\n") > -1 ? "\r\n" : "\r\n\r\n") + subtitle;
+
+  console.log("----------------------");
+  console.log(title);
+  console.log({ uri });
+  console.log("----------------------");
 
   return {
     name: tor["Tracker"],
@@ -265,7 +267,7 @@ app
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
 
-    // console.log({stream_results})
+    console.log({stream_results})
 
     return res.send({ streams: stream_results });
   })
