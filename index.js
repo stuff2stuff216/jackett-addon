@@ -32,7 +32,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
       }, 8000); // Test on cyclic.sh
     });
 
-    console.log({ res });
+    // console.log({ res });
     parsed.files = res;
     engine.destroy();
   }
