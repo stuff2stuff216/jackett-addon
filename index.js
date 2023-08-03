@@ -248,7 +248,7 @@ app
       result.map((torrent) => {
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 0
+          torrent["Peers"] > 3
         ) {
           return streamFromMagnet(
             torrent,
