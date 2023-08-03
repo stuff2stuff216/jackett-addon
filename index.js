@@ -79,7 +79,7 @@ let isRedirect = async (url) => {
   try {
     const controller = new AbortController();
     // 5 second timeout:
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     const response = await fetch(url, {
       redirect: "manual",
