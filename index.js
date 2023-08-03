@@ -28,7 +28,8 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 100000);
+        // }, 100000); // Too slooooow, the server is too slow
+      }, 8000); // Test on cyclic.sh
     });
 
     console.log({ res });
