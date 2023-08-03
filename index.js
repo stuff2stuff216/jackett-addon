@@ -149,7 +149,7 @@ const host = "http://82.123.61.186:9117";
 const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=solidtorrents&Tracker%5B%5D=nyaasi`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=solidtorrents&Tracker%5B%5D=nyaasi`;
 
   return await fetch(url, {
     headers: {
@@ -247,7 +247,7 @@ app
       result.map((torrent) => {
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 0
+          torrent["Peers"] > 4
         ) {
           return streamFromMagnet(
             torrent,
