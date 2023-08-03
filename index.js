@@ -132,11 +132,11 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
           }
         });
       } else {
-        console.log("no http nor magnet");
+        // console.log("no http nor magnet");
         resolve(realUrl);
       }
     } else {
-      console.log("no real uri");
+      // console.log("no real uri");
       resolve(null);
     }
   });
@@ -149,7 +149,7 @@ const host = "http://82.123.61.186:9117";
 const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=solidtorrents&Tracker%5B%5D=nyaasi`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=nyaasi`;
 
   return await fetch(url, {
     headers: {
@@ -165,7 +165,7 @@ let fetchTorrent = async (query) => {
   })
     .then((res) => res.json())
     .then(async (results) => {
-      console.log(results["Results"].length);
+      console.log({ Initial: results["Results"].length });
       if (results["Results"].length != 0) {
         torrent_results = await Promise.all(
           results["Results"].map((result) => {
@@ -247,7 +247,7 @@ app
       result.map((torrent) => {
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 4
+          torrent["Peers"] > 1
         ) {
           return streamFromMagnet(
             torrent,
@@ -267,7 +267,7 @@ app
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
 
-    console.log({ stream_results: stream_results.length });
+    console.log({ Final: stream_results.length });
 
     return res.send({ streams: stream_results });
   })
