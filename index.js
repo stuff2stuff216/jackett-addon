@@ -111,8 +111,14 @@ let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 // let host = "http://82.123.61.186:9117";
 // let apiKey = "ht0imkbrces8ypsmskunjr1zj2l9ecf4";
 
+//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch
+
+//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=5000&Tracker%5B%5D=eztv&_=1691053168815
+
+//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=5000&Tracker%5B%5D=abnormal&_=1691053168816
+
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000`;
+  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=abnormal`;
 
   return await fetch(url, {
     headers: {
