@@ -60,7 +60,6 @@ let isRedirect = async (url) => {
 
   if (response.status === 301 || response.status === 302) {
     const locationURL = new URL(response.headers.get("location"), response.url);
-    // const response2 = await fetch(locationURL, { redirect: "manual" });
     if (locationURL.href.startsWith("http")) {
       await isRedirect(locationURL);
     } else {
@@ -104,14 +103,12 @@ let torrent_results = [];
 // let host = "http://82.123.61.186:9117";
 // let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
-let host = "http://1.60.232.137:9117";
-let apiKey = "yw3nttvisxnkdn12eqvyidkjdm1l0xt7";
-
-// http://1.60.232.137:9117/api/v2.0/indexers/test:passed/results?apikey=yw3nttvisxnkdn12eqvyidkjdm1l0xt7&Query=dark%20knight&Category%5B%5D=2000&Category%5B%5D=5000&_=1690919803407
+let host = "http://1.202.50.183:9117";
+let apiKey = "ht0imkbrces8ypsmskunjr1zj2l9ecf4";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=yw3nttvisxnkdn12eqvyidkjdm1l0xt7&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000`;
-  // console.log({ url });
+  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000`;
+
   return await fetch(url, {
     headers: {
       accept: "*/*",
