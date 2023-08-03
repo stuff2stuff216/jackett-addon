@@ -7,12 +7,6 @@ const fetch = require("node-fetch");
 var torrentStream = require("torrent-stream");
 
 const bodyParser = require("body-parser");
-const cors = require("cors");
-
-const type_ = {
-  MOVIE: "movie",
-  TV: "series",
-};
 
 const toStream = async (parsed, uri, tor, type, s, e) => {
   const infoHash = parsed.infoHash.toLowerCase();
@@ -28,7 +22,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 70000); // Too slooooow, the server is too slow
+      }, 75000); // Too slooooow, the server is too slow
     });
 
     // console.log({ res });
@@ -151,7 +145,7 @@ const host = "http://82.123.61.186:9117";
 const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=nyaasi&Tracker%5B%5D=1337x`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=solidtorrents`;
 
   return await fetch(url, {
     headers: {
