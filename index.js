@@ -79,7 +79,7 @@ let isRedirect = async (url) => {
   try {
     const controller = new AbortController();
     // 5 second timeout:
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(url, {
       redirect: "manual",
@@ -96,9 +96,12 @@ let isRedirect = async (url) => {
       if (locationURL.href.startsWith("http")) {
         await isRedirect(locationURL);
       } else {
+        // console.log({ nnatt: locationURL.href });
+
         return locationURL.href;
       }
     } else if (response.status >= 200 && response.status < 300) {
+      // console.log({ nna: response.url });
       return response.url;
     } else {
       // return response.url;
@@ -114,6 +117,8 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
   return new Promise(async (resolve, reject) => {
     //follow redirection cause some http url sent magnet url
     let realUrl = uri?.startsWith("magnet:?") ? uri : await isRedirect(uri);
+
+    // console.log({ realUrl });
 
     if (realUrl) {
       if (realUrl?.startsWith("magnet:?")) {
