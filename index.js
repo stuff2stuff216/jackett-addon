@@ -3,7 +3,8 @@ const parseTorrent = require("parse-torrent");
 const express = require("express");
 const app = express();
 const fetch = require("node-fetch");
-// var torrentStream = require("torrent-stream");
+// var WebTorrent = require("webtorrent");
+var torrentStream = require("torrent-stream");
 
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -13,10 +14,26 @@ const type_ = {
   TV: "series",
 };
 
-const toStream = (parsed, tor, type, s, e) => {
+const toStream = async (parsed, uri, tor, type, s, e) => {
   const infoHash = parsed.infoHash.toLowerCase();
   let title = tor.extraTag || parsed.name;
-  let index = -1;
+  let index = 0;
+
+  if (!parsed.files && uri.startsWith("magnet")) {
+    var engine = torrentStream("magnet:" + uri);
+    let res = await new Promise((resolve, reject) => {
+      engine.on("ready", function () {
+        resolve(engine.files);
+      });
+
+      setTimeout(() => {
+        resolve([]);
+      }, 10000);
+    });
+    parsed.files = res;
+    engine.destroy();
+  }
+  // console.log({ uri });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -53,26 +70,40 @@ const toStream = (parsed, tor, type, s, e) => {
     title: title,
     behaviorHints: {
       bingeGroup: `Jackett-Addon|${infoHash}`,
-      // notWebReady: true,
+      notWebReady: true,
     },
   };
 };
 
 let isRedirect = async (url) => {
-  const response = await fetch(url, {
-    redirect: "manual",
-  });
+  try {
+    const controller = new AbortController();
+    // 5 second timeout:
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-  if (response.status === 301 || response.status === 302) {
-    const locationURL = new URL(response.headers.get("location"), response.url);
-    if (locationURL.href.startsWith("http")) {
-      await isRedirect(locationURL);
+    const response = await fetch(url, {
+      redirect: "manual",
+      signal: controller.signal,
+    });
+
+    if (response.status === 301 || response.status === 302) {
+      const locationURL = new URL(
+        response.headers.get("location"),
+        response.url
+      );
+      if (locationURL.href.startsWith("http")) {
+        await isRedirect(locationURL);
+      } else {
+        return locationURL.href;
+      }
+    } else if (response.status >= 200 && response.status < 300) {
+      return response.url;
     } else {
-      return locationURL.href;
+      return response.url;
+      // return null;
     }
-  } else if (response.status >= 200 && response.status < 300) {
-    return response.url;
-  } else {
+  } catch (error) {
+    // console.log({ error });
     return null;
   }
 };
@@ -84,19 +115,22 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
 
     if (realUrl) {
       if (realUrl?.startsWith("magnet:?")) {
-        resolve(toStream(parseTorrent(realUrl), tor, type, s, e));
+        resolve(toStream(parseTorrent(realUrl), realUrl, tor, type, s, e));
       } else if (realUrl?.startsWith("http")) {
         parseTorrent.remote(realUrl, (err, parsed) => {
           if (!err) {
-            resolve(toStream(parsed, tor, type, s, e));
+            resolve(toStream(parsed, realUrl, tor, type, s, e));
           } else {
+            console.log("err parsing http");
             resolve(null);
           }
         });
       } else {
+        console.log("no http nor magnet");
         resolve(realUrl);
       }
     } else {
+      console.log("no real uri");
       resolve(null);
     }
   });
@@ -105,20 +139,11 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
 let stream_results = [];
 let torrent_results = [];
 
-let host = "http://82.123.61.186:9117";
-let apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
-
-// let host = "http://82.123.61.186:9117";
-// let apiKey = "ht0imkbrces8ypsmskunjr1zj2l9ecf4";
-
-//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch
-
-//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=5000&Tracker%5B%5D=eztv&_=1691053168815
-
-//http://82.123.61.186:9117/api/v2.0/indexers/all/results?apikey=h3cotr040alw3lqbuhjgrorcal76bv17&Query=game%20of%20thrones&Category%5B%5D=5000&Tracker%5B%5D=abnormal&_=1691053168816
+const host = "http://82.123.61.186:9117";
+const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/test:passed/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=abnormal`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=abnormal&Tracker%5B%5D=bitsearch&Tracker%5B%5D=eztv&Tracker%5B%5D=solidtorrents`;
 
   return await fetch(url, {
     headers: {
@@ -134,7 +159,7 @@ let fetchTorrent = async (query) => {
   })
     .then((res) => res.json())
     .then(async (results) => {
-      // console.log(results["Results"].length);
+      console.log(results["Results"].length);
       if (results["Results"].length != 0) {
         torrent_results = await Promise.all(
           results["Results"].map((result) => {
@@ -214,10 +239,13 @@ app
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        if (torrent["Link"] != "" || torrent["MagnetUri"] != "") {
+        if (
+          (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
+          torrent["Peers"] > 0
+        ) {
           return streamFromMagnet(
             torrent,
-            torrent["Link"] || torrent["MagnetUri"],
+            torrent["MagnetUri"] || torrent["Link"],
             media,
             s,
             e
