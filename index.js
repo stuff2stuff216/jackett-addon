@@ -204,7 +204,7 @@ app
     var json = {
       id: "mikmc.od.org+++",
       version: "3.0.0",
-      name: "JACKETT.",
+      name: "JACKETT",
       description: "Movie & TV Streams from Jackett",
       logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
       resources: ["stream"],
