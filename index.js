@@ -256,9 +256,9 @@ app
       })
     );
 
-    stream_results = Array.from(new Set(stream_results));
+    stream_results = Array.from(new Set(stream_results)).filter((e) => !!e);
 
-    // console.log(stream_results);
+    // console.log(stream_results)
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
