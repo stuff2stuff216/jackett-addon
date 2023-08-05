@@ -79,7 +79,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
   }
 
   const subtitle = "\nS:" + tor["Seeders"] + " /P:" + tor["Peers"];
-  title += ` \ ${subtitle} \ ${getQuality(title)}`;
+  title += ` \ ${getQuality(title)} \ ${subtitle} `;
 
   return {
     name: tor["Tracker"],
