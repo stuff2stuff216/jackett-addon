@@ -70,16 +70,16 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
     if (index == -1) {
       return null;
     }
-
     title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
-    title +=
-      index == -1
-        ? `\n${getSize(parsed.length ?? 0)}`
-        : `\n${getSize(parsed.files[index]["length"] ?? 0)}`;
   }
 
+  title +=
+    index == -1
+      ? `\n${getSize(parsed.length ?? 0)}`
+      : `\n${getSize(parsed.files[index]["length"] ?? 0)}`;
+
   const subtitle = "S:" + tor["Seeders"] + " /P:" + tor["Peers"];
-  title += ` \ ${getQuality(title)} \ ${subtitle} `;
+  title += ` | ${getQuality(title)} | ${subtitle} `;
 
   return {
     name: tor["Tracker"],
