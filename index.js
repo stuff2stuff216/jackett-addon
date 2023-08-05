@@ -8,6 +8,31 @@ var torrentStream = require("torrent-stream");
 
 const bodyParser = require("body-parser");
 
+function getSize(size) {
+  var gb = 1024 * 1024 * 1024;
+  var mb = 1024 * 1024;
+
+  return (
+    "💾 " +
+    (size / gb > 1
+      ? `${(size / gb).toFixed(2)} GB`
+      : `${(size / mb).toFixed(2)} MB`)
+  );
+}
+
+function getQuality(name) {
+  name = name.toLowerCase();
+
+  if (["2160", "4k", "uhd"].filter((x) => name.includes(x)).length > 0)
+    return "🌟4k";
+  if (["1080", "fhd"].filter((x) => name.includes(x)).length > 0)
+    return " 🎥FHD";
+  if (["720", "hd"].filter((x) => name.includes(x)).length > 0) return "📺HD";
+  if (["480p", "380p", "sd"].filter((x) => name.includes(x)).length > 0)
+    return "📱SD";
+  return "";
+}
+
 const toStream = async (parsed, uri, tor, type, s, e) => {
   const infoHash = parsed.infoHash.toLowerCase();
   let title = tor.extraTag || parsed.name;
@@ -47,9 +72,13 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
     }
 
     title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
+    title +=
+      index == -1
+        ? `\n${getSize(parsed.length ?? 0)}`
+        : `\n${getSize(parsed.files[index]["length"] ?? 0)}`;
   }
 
-  const subtitle = "Seeds: " + tor["Seeders"] + " / Peers: " + tor["Peers"];
+  const subtitle = "S:" + tor["Seeders"] + " / P:" + tor["Peers"];
   title += (title.indexOf("\n") > -1 ? "\r\n" : "\r\n\r\n") + subtitle;
 
   // console.log("----------------------");
@@ -58,7 +87,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
   // console.log("----------------------");
 
   return {
-    name: tor["Tracker"],
+    name: tor["Tracker"] + "\n" + subtitle + "\n" + getQuality(title),
     type: type,
     infoHash: infoHash,
     fileIdx: index == -1 ? 0 : index,
