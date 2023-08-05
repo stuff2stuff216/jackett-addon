@@ -1,8 +1,9 @@
 {
   "name": "addon",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NZB addon",
   "main": "index.js",
+  "repository": "https://github.com/daniwalter001/jackett-addon.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
