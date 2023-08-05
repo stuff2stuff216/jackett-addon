@@ -288,6 +288,8 @@ app
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
 
+    console.log({ check: "check" });
+
     console.log({ Final: stream_results.length });
 
     return res.send({ streams: stream_results });
