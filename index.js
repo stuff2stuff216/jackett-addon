@@ -81,11 +81,6 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
   const subtitle = "S:" + tor["Seeders"] + " / P:" + tor["Peers"];
   title += (title.indexOf("\n") > -1 ? "\r\n" : "\r\n\r\n") + subtitle;
 
-  // console.log("----------------------");
-  // console.log(title);
-  // console.log({ uri });
-  // console.log("----------------------");
-
   return {
     name: tor["Tracker"] + "\n" + subtitle + "\n" + getQuality(title),
     type: type,
