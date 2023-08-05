@@ -78,7 +78,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
         : `\n${getSize(parsed.files[index]["length"] ?? 0)}`;
   }
 
-  const subtitle = "\nS:" + tor["Seeders"] + " /P:" + tor["Peers"];
+  const subtitle = "S:" + tor["Seeders"] + " /P:" + tor["Peers"];
   title += ` \ ${getQuality(title)} \ ${subtitle} `;
 
   return {
