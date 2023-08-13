@@ -213,7 +213,7 @@ let fetchTorrent = async (query) => {
 function getMeta(id, type) {
   var [tt, s, e] = id.split(":");
 
-  return fetch(`https://v2.sg.media-imdb.com/suggestion/t/${tt}.json`)
+  return fetch(`https://anime-kitsu.strem.fun/meta/anime/kitsu:45857.json`)
     .then((res) => res.json())
     .then((json) => json.d[0])
     .then(({ l, y }) => ({ name: l, year: y }))
@@ -224,35 +224,86 @@ function getMeta(id, type) {
     );
 }
 
+async function getImdbFromKitsu(id) {
+  var [kitsu, _id, e] = id.split(":");
+
+  return fetch(`https://anime-kitsu.strem.fun/meta/anime/${kitsu}:${_id}.json`)
+    .then((_res) => _res.json())
+    .then((json) => {
+      return json["meta"];
+    })
+    .then((json) => {
+      try {
+        let imdb = json["imdb_id"];
+        let meta = json["videos"].find((el) => el.id == id);
+        return [
+          imdb,
+          (meta["imdbSeason"] ?? 1).toString(),
+          (meta["imdbEpisode"] ?? 1).toString(),
+        ];
+      } catch (error) {
+        return null;
+      }
+    })
+    .catch((err) => null);
+}
+
 app
   .get("/manifest.json", (req, res) => {
-    var json = {
-      id: "mikmc.od.org+++",
-      version: "3.0.0",
-      name: "JACKETT",
-      description: "Movie & TV Streams from Jackett",
-      logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
-      resources: ["stream"],
-      types: ["movie", "series"],
-      idPrefixes: ["tt"],
-      catalogs: [],
-    };
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
+
+    //
+    var json = {
+      id: "daiki.jackett.strem",
+      version: "1.0.1",
+      name: "JACKETT",
+      description: "Movie & TV Streams from Jackett",
+      logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
+      resources: [
+        {
+          name: "stream",
+          types: ["movie", "series"],
+          idPrefixes: ["tt", "kitsu"],
+        },
+      ],
+      types: ["movie", "series", "anime", "other"],
+      catalogs: [],
+    };
+
     return res.send(json);
   })
   .get("/stream/:type/:id", async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    res.setHeader("Content-Type", "application/json");
+
+    //
     media = req.params.type;
     let id = req.params.id;
     id = id.replace(".json", "");
 
-    let [tt, s, e] = id.split(":");
+    let tmp = [];
+
+    if (id.includes("kitsu")) {
+      tmp = await getImdbFromKitsu(id);
+      if (!tmp) {
+        return res.send({ stream: {} });
+      }
+    } else {
+      tmp = id.split(":");
+    }
+
+    console.log(tmp);
+
+    let [tt, s, e] = tmp;
+
     let query = "";
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    console.log({ meta });
+    console.log({ name: meta?.name, year: meta?.year });
     query = meta?.name;
 
     if (media == "movie") {
@@ -281,12 +332,13 @@ app
       })
     );
 
+    // https://stremio2.stuff2-stuff216.workers.dev/stream/series/kitsu:46170:2.json
+
+    // https://anime-kitsu.strem.fun/meta/anime/kitsu:46170.json
+
     stream_results = Array.from(new Set(stream_results)).filter((e) => !!e);
 
     // console.log(stream_results)
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader("Content-Type", "application/json");
 
     console.log({ check: "check" });
 
