@@ -295,8 +295,6 @@ app
       tmp = id.split(":");
     }
 
-    console.log(tmp);
-
     let [tt, s, e] = tmp;
 
     let query = "";
