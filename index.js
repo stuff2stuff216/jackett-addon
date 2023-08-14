@@ -354,7 +354,7 @@ app
     //
     var json = {
       id: "daiki.jackett.strem",
-      version: "1.0.2",
+      version: "1.0.3",
       name: "JACKETT",
       description: "Movie & TV Streams from Jackett",
       logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
