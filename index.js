@@ -47,7 +47,7 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
       setTimeout(() => {
         resolve([]);
-      }, 10000); // Too slooooow, the server is too slow
+      }, 15000); // Too slooooow, the server is too slow
     });
 
     // console.log({ res });
@@ -141,6 +141,7 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
     let realUrl = uri?.startsWith("magnet:?") ? uri : await isRedirect(uri);
 
     if (realUrl) {
+      // console.log({ realUrl });
       if (realUrl?.startsWith("magnet:?")) {
         resolve(toStream(parseTorrent(realUrl), realUrl, tor, type, s, e));
       } else if (realUrl?.startsWith("http")) {
@@ -148,16 +149,16 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
           if (!err) {
             resolve(toStream(parsed, realUrl, tor, type, s, e));
           } else {
-            // console.log("err parsing http");
+            console.log("err parsing http");
             resolve(null);
           }
         });
       } else {
-        // console.log("no http nor magnet");
+        console.log("no http nor magnet");
         resolve(realUrl);
       }
     } else {
-      // console.log("no real uri");
+      console.log("no real uri");
       resolve(null);
     }
   });
@@ -186,7 +187,7 @@ let fetchTorrent = async (query) => {
   })
     .then((res) => res.json())
     .then(async (results) => {
-      console.log({ Initial: results["Results"].length });
+      console.log({ Initial: results["Results"]?.length });
       if (results["Results"].length != 0) {
         torrent_results = await Promise.all(
           results["Results"].map((result) => {
@@ -213,9 +214,11 @@ let fetchTorrent = async (query) => {
 function getMeta(id, type) {
   var [tt, s, e] = id.split(":");
 
-  return fetch(`https://anime-kitsu.strem.fun/meta/anime/kitsu:45857.json`)
+  return fetch(`https://v2.sg.media-imdb.com/suggestion/t/${tt}.json`)
     .then((res) => res.json())
-    .then((json) => json.d[0])
+    .then((json) => {
+      return json.d[0];
+    })
     .then(({ l, y }) => ({ name: l, year: y }))
     .catch((err) =>
       fetch(`https://v3-cinemeta.strem.io/meta/${type}/${tt}.json`)
@@ -297,22 +300,29 @@ app
 
     let [tt, s, e] = tmp;
 
-    let query = "";
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
     console.log({ name: meta?.name, year: meta?.year });
+
+    let query = "";
     query = meta?.name;
+
+    let result = [];
 
     if (media == "movie") {
       query += " " + meta?.year;
+      result = await fetchTorrent(encodeURIComponent(query));
     } else if (media == "series") {
-      query += " S" + (s ?? "1").padStart(2, "0");
+      result = await Promise.all([
+        fetchTorrent(
+          encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
+        ),
+        fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
+      ]);
+
+      result = [...result[0], ...result[1]];
     }
-    query = encodeURIComponent(query);
-
-    let result = await fetchTorrent(query);
-
     let stream_results = await Promise.all(
       result.map((torrent) => {
         if (
@@ -335,10 +345,6 @@ app
     // https://anime-kitsu.strem.fun/meta/anime/kitsu:46170.json
 
     stream_results = Array.from(new Set(stream_results)).filter((e) => !!e);
-
-    // console.log(stream_results)
-
-    console.log({ check: "check" });
 
     console.log({ Final: stream_results.length });
 
