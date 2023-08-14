@@ -58,8 +58,10 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
       return (
-        element["name"]?.toLowerCase()?.includes(`s0${s}`) &&
-        element["name"]?.toLowerCase()?.includes(`e0${e}`) &&
+        (element["name"]?.toLowerCase()?.includes(`s0${s}`) ||
+          element["name"]?.toLowerCase()?.includes(`s${s}`)) &&
+        (element["name"]?.toLowerCase()?.includes(`e0${e}`) ||
+          element["name"]?.toLowerCase()?.includes(`e${e}`)) &&
         (element["name"]?.toLowerCase()?.includes(`.mkv`) ||
           element["name"]?.toLowerCase()?.includes(`.mp4`) ||
           element["name"]?.toLowerCase()?.includes(`.avi`) ||
@@ -149,16 +151,16 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
           if (!err) {
             resolve(toStream(parsed, realUrl, tor, type, s, e));
           } else {
-            console.log("err parsing http");
+            // console.log("err parsing http");
             resolve(null);
           }
         });
       } else {
-        console.log("no http nor magnet");
+        // console.log("no http nor magnet");
         resolve(realUrl);
       }
     } else {
-      console.log("no real uri");
+      // console.log("no real uri");
       resolve(null);
     }
   });
@@ -172,7 +174,7 @@ const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=solidtorrents`;
-
+  // console.log({ query });
   return await fetch(url, {
     headers: {
       accept: "*/*",
