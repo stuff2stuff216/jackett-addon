@@ -34,3 +34,8 @@ Jackett:[
     http://1.26.168.199:9117/UI/Dashboard,
     http://1.60.232.137:9117/UI/Dashboard
 ]
+
+
+// https://stremio2.stuff2-stuff216.workers.dev/stream/series/kitsu:46170:2.json
+
+// https://anime-kitsu.strem.fun/meta/anime/kitsu:46170.json

@@ -33,7 +33,17 @@ function getQuality(name) {
   return "";
 }
 
-const toStream = async (parsed, uri, tor, type, s, e) => {
+const toStream = async (
+  parsed,
+  uri,
+  tor,
+  type,
+  s,
+  e,
+  abs_season,
+  abs_episode,
+  abs
+) => {
   const infoHash = parsed.infoHash.toLowerCase();
   let title = tor.extraTag || parsed.name;
   let index = 0;
@@ -57,18 +67,61 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
+      // console.log({ element: element["name"] });
+      let containS =
+        element["name"]?.toLowerCase()?.includes(`s${s?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s}`);
+
+      let containE =
+        element["name"]?.toLowerCase()?.includes(`e${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`e${e}`);
+
+      let containE_S =
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")} - ${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s} - ${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s} - ${e}`) ||
+        element["name"]?.toLowerCase()?.includes(`season ${s} - ${e}`);
+
+      let containsAbsoluteE =
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`- ${abs_episode?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`- ${abs_episode?.padStart(3, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`- 0${abs_episode}`);
+
+      let containsAbsoluteE_ = element["name"]
+        ?.toLowerCase()
+        ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
+
+      let isVideo =
+        element["name"]?.toLowerCase()?.includes(`.mkv`) ||
+        element["name"]?.toLowerCase()?.includes(`.mp4`) ||
+        element["name"]?.toLowerCase()?.includes(`.avi`) ||
+        element["name"]?.toLowerCase()?.includes(`.flv`);
+
       return (
-        (element["name"]?.toLowerCase()?.includes(`s0${s}`) ||
-          element["name"]?.toLowerCase()?.includes(`s${s}`)) &&
-        (element["name"]?.toLowerCase()?.includes(`e0${e}`) ||
-          element["name"]?.toLowerCase()?.includes(`e${e}`)) &&
-        (element["name"]?.toLowerCase()?.includes(`.mkv`) ||
-          element["name"]?.toLowerCase()?.includes(`.mp4`) ||
-          element["name"]?.toLowerCase()?.includes(`.avi`) ||
-          element["name"]?.toLowerCase()?.includes(`.flv`))
+        isVideo &&
+        ((containS && containE) ||
+          containE_S ||
+          (((abs && containsAbsoluteE) || (abs && containsAbsoluteE_)) &&
+            !(
+              element["name"]?.toLowerCase()?.includes("s0") ||
+              element["name"]?.toLowerCase()?.includes("e0") ||
+              element["name"]?.toLowerCase()?.includes("season")
+            )))
       );
     });
 
+    if (index != -1) {
+      console.log(parsed.files[index]["name"]);
+    }
+    //
     if (index == -1) {
       return null;
     }
@@ -77,12 +130,14 @@ const toStream = async (parsed, uri, tor, type, s, e) => {
 
   title += "\n" + getQuality(title);
 
-  const subtitle = "S:" + tor["Seeders"] + " /P:" + tor["Peers"];
+  const subtitle = "S:" + tor["Seeders"] + " | P:" + tor["Peers"];
   title += ` | ${
     index == -1
       ? `${getSize(parsed.length ?? 0)}`
       : `${getSize(parsed.files[index]["length"] ?? 0)}`
   } | ${subtitle} `;
+
+  // console.log({ title });
 
   return {
     name: tor["Tracker"],
@@ -137,7 +192,16 @@ let isRedirect = async (url) => {
   }
 };
 
-const streamFromMagnet = (tor, uri, type, s, e) => {
+const streamFromMagnet = (
+  tor,
+  uri,
+  type,
+  s,
+  e,
+  abs_season,
+  abs_episode,
+  abs
+) => {
   return new Promise(async (resolve, reject) => {
     //follow redirection cause some http url sent magnet url
     let realUrl = uri?.startsWith("magnet:?") ? uri : await isRedirect(uri);
@@ -145,11 +209,35 @@ const streamFromMagnet = (tor, uri, type, s, e) => {
     if (realUrl) {
       // console.log({ realUrl });
       if (realUrl?.startsWith("magnet:?")) {
-        resolve(toStream(parseTorrent(realUrl), realUrl, tor, type, s, e));
+        resolve(
+          toStream(
+            parseTorrent(realUrl),
+            realUrl,
+            tor,
+            type,
+            s,
+            e,
+            abs_season,
+            abs_episode,
+            abs
+          )
+        );
       } else if (realUrl?.startsWith("http")) {
         parseTorrent.remote(realUrl, (err, parsed) => {
           if (!err) {
-            resolve(toStream(parsed, realUrl, tor, type, s, e));
+            resolve(
+              toStream(
+                parsed,
+                realUrl,
+                tor,
+                type,
+                s,
+                e,
+                abs_season,
+                abs_episode,
+                abs
+              )
+            );
           } else {
             // console.log("err parsing http");
             resolve(null);
@@ -174,7 +262,7 @@ const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=solidtorrents`;
-  // console.log({ query });
+  console.log({ query });
   return await fetch(url, {
     headers: {
       accept: "*/*",
@@ -190,6 +278,7 @@ let fetchTorrent = async (query) => {
     .then((res) => res.json())
     .then(async (results) => {
       console.log({ Initial: results["Results"]?.length });
+      // console.log({ Response: results["Results"] });
       if (results["Results"].length != 0) {
         torrent_results = await Promise.all(
           results["Results"].map((result) => {
@@ -245,6 +334,9 @@ async function getImdbFromKitsu(id) {
           imdb,
           (meta["imdbSeason"] ?? 1).toString(),
           (meta["imdbEpisode"] ?? 1).toString(),
+          (meta["season"] ?? 1).toString(),
+          (meta["episode"] ?? 1).toString(),
+          meta["imdbEpisode"] != meta["episode"],
         ];
       } catch (error) {
         return null;
@@ -300,7 +392,9 @@ app
       tmp = id.split(":");
     }
 
-    let [tt, s, e] = tmp;
+    let [tt, s, e, abs_season, abs_episode, abs] = tmp;
+
+    console.log(tmp);
 
     let meta = await getMeta(tt, media);
 
@@ -316,17 +410,36 @@ app
       query += " " + meta?.year;
       result = await fetchTorrent(encodeURIComponent(query));
     } else if (media == "series") {
-      result = await Promise.all([
+      let promises = [
         fetchTorrent(
           encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
-      ]);
+      ];
 
-      result = [...result[0], ...result[1]];
+      if (abs) {
+        promises.push(
+          fetchTorrent(
+            encodeURIComponent(`${query} E${abs_episode?.padStart(2, "0")}`)
+          )
+        );
+      }
+
+      result = await Promise.all(promises);
+
+      result = [
+        ...result[0],
+        ...result[1],
+        ...(result?.length >= 3 ? result[2] : []),
+      ];
     }
+
     let stream_results = await Promise.all(
       result.map((torrent) => {
+        // if (torrent["Peers"] > -1) {
+        //   console.log(torrent["Title"]);
+        //   console.log(torrent["Peers"]);
+        // }
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
           torrent["Peers"] > 1
@@ -336,15 +449,14 @@ app
             torrent["MagnetUri"] || torrent["Link"],
             media,
             s,
-            e
+            e,
+            abs_season,
+            abs_episode,
+            abs
           );
         }
       })
     );
-
-    // https://stremio2.stuff2-stuff216.workers.dev/stream/series/kitsu:46170:2.json
-
-    // https://anime-kitsu.strem.fun/meta/anime/kitsu:46170.json
 
     stream_results = Array.from(new Set(stream_results)).filter((e) => !!e);
 
