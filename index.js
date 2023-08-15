@@ -413,6 +413,7 @@ app
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "s-max-age=1, stale-while-revalidate");
 
     //
     media = req.params.type;
@@ -477,7 +478,7 @@ app
     // });
 
     let stream_results = await Promise.all(
-       Array.from(new Set(result)).map((torrent) => {
+      Array.from(new Set(result)).map((torrent) => {
         if (torrent["Peers"] > 1) {
           console.log(torrent["Title"]);
           // console.log(torrent["MagnetUri"] ?? torrent["Link"]);
