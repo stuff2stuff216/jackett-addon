@@ -119,7 +119,7 @@ const toStream = async (
     });
 
     if (index != -1) {
-      console.log(parsed.files[index]["name"]);
+      // console.log(parsed.files[index]["name"]);
     }
     //
     if (index == -1) {
@@ -355,7 +355,7 @@ app
     var json = {
       id: "daiki.jackett.strem",
       version: "1.0.3",
-      name: "JACKETT",
+      name: "JACKETT.",
       description: "Movie & TV Streams from Jackett",
       logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
       resources: [
@@ -436,10 +436,6 @@ app
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        // if (torrent["Peers"] > -1) {
-        //   console.log(torrent["Title"]);
-        //   console.log(torrent["Peers"]);
-        // }
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
           torrent["Peers"] > 1
