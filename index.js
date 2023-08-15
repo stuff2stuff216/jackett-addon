@@ -464,7 +464,7 @@ app
     let stream_results = await Promise.all(
       result.map((torrent) => {
         if (torrent["Peers"] > 1) {
-          console.log(torrent["Name"]);
+          console.log(torrent["Title"]);
         }
 
         if (
