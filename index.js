@@ -80,7 +80,7 @@ const toStream = async (
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
@@ -141,6 +141,7 @@ const toStream = async (
 
   if (media == "movie") {
     index = (parsed?.files ?? []).findIndex((element, index) => {
+      console.log({ element: element["name"] });
       return isVideo(element);
     });
     //
