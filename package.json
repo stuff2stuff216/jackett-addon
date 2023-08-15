@@ -6,7 +6,8 @@
   "repository": "https://github.com/daniwalter001/jackett-addon.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "vercel-build": "echo building"
   },
   "keywords": [
     "addon",
