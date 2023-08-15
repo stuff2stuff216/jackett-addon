@@ -70,7 +70,7 @@ const toStream = async (
 
       setTimeout(() => {
         resolve([]);
-      }, 15000); // Too slooooow, the server is too slow
+      }, 30000); // Too slooooow, the server is too slow
     });
 
     // console.log({ res });
