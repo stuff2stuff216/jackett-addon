@@ -71,13 +71,18 @@ const toStream = async (
       //
       setTimeout(() => {
         resolve([]);
-      }, 30000); // Too slooooow, the server is too slow
+      }, 20000); // Too slooooow, the server is too slow
     });
 
-    // console.log({ res });
-    parsed.files = res;
+    parsed.files = {
+      name: res["name"],
+      length: res["length"],
+      path: res["path"],
+    };
     engine.destroy();
   }
+
+  console.log(parsed.files);
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -184,7 +189,7 @@ let isRedirect = async (url) => {
   try {
     const controller = new AbortController();
     // 5 second timeout:
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(url, {
       redirect: "manual",
@@ -463,9 +468,9 @@ app
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        if (torrent["Peers"] > 1) {
-          console.log(torrent["Title"]);
-        }
+        // if (torrent["Peers"] > 1) {
+        //   console.log(torrent["Title"]);
+        // }
 
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
