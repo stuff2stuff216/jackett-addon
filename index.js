@@ -74,11 +74,17 @@ const toStream = async (
       }, 20000); // Too slooooow, the server is too slow
     });
 
-    parsed.files = {
-      name: res["name"],
-      length: res["length"],
-      path: res["path"],
-    };
+    parsed.files = await Promise.all(
+      res.map((element) => {
+        return new Promise((resolve, reject) => {
+          resolve({
+            name: element["name"],
+            length: element["length"],
+            path: element["path"],
+          });
+        });
+      })
+    );
     engine.destroy();
   }
 
