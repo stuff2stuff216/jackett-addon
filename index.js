@@ -140,7 +140,8 @@ const toStream = async (
       return null;
     }
 
-    title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
+    title += index == -1 && title ? "" : `\n${parsed.files[index]["name"]}`;
+    title = title ? "" : parsed.files[index]["name"];
   }
 
   if (media == "movie") {
@@ -157,7 +158,7 @@ const toStream = async (
 
   title = title ?? parsed.files[index]["name"];
 
-  // console.log({ title });
+  console.log({ title });
 
   title += "\n" + getQuality(title);
 
