@@ -480,6 +480,7 @@ app
     result.sort((a, b) => {
       return +a["Peers"] - +b["Peers"];
     });
+    
 
     result = result?.length >= 10 ? result.splice(-10) : result;
 
