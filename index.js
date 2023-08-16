@@ -90,6 +90,10 @@ const toStream = async (
     engine.destroy();
   }
 
+  // if(parsed.files!=[]){
+  //   print(parsed.files)
+  // }
+
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
       // console.log({ element: element["name"] });
@@ -163,6 +167,7 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
+    console.log(parsed.files[index]["name"]);
   }
 
   title += "\n" + getQuality(title);
@@ -198,7 +203,7 @@ let isRedirect = async (url) => {
   try {
     const controller = new AbortController();
     // 5 second timeout:
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(url, {
       redirect: "manual",
@@ -472,17 +477,14 @@ app
       ];
     }
 
-    // result.sort((a, b) => {
-    //   +a["Peers"] - +b["Peers"];
-    // });
+    result.sort((a, b) => {
+      return +a["Peers"] - +b["Peers"];
+    });
+
+    result = result?.length >= 10 ? result.splice(-10) : result;
 
     let stream_results = await Promise.all(
-       Array.from(new Set(result)).map((torrent) => {
-        if (torrent["Peers"] > 1) {
-          console.log(torrent["Title"]);
-          // console.log(torrent["MagnetUri"] ?? torrent["Link"]);
-        }
-
+      result.map((torrent) => {
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
           torrent["Peers"] > 1
