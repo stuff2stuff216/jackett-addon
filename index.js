@@ -61,7 +61,7 @@ const toStream = async (
   abs
 ) => {
   const infoHash = parsed.infoHash.toLowerCase();
-  let title = tor.extraTag || parsed.name;
+  let title = tor.extraTag ?? parsed.name;
   let index = -1;
 
   if (!parsed.files && uri.startsWith("magnet")) {
@@ -140,8 +140,6 @@ const toStream = async (
       return null;
     }
 
-    // console.log(parsed.files[index]["name"]);
-
     title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
   }
 
@@ -156,6 +154,8 @@ const toStream = async (
     }
     // console.log(parsed.files[index]["name"]);
   }
+
+  title = title ?? parsed.files[index]["name"];
 
   console.log({ title });
 
