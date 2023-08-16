@@ -21,6 +21,9 @@ function getSize(size) {
 }
 
 function getQuality(name) {
+  if (!name) {
+    return name;
+  }
   name = name.toLowerCase();
 
   if (["2160", "4k", "uhd"].filter((x) => name.includes(x)).length > 0)
@@ -74,25 +77,9 @@ const toStream = async (
       }, 10000); // Too slooooow, the server is too slow
     });
 
-    // parsed.files = await Promise.all(
-    //   res.map((element) => {
-    //     return new Promise((resolve, reject) => {
-    //       resolve({
-    //         name: element["name"],
-    //         length: element["length"],
-    //         path: element["path"],
-    //       });
-    //     });
-    //   })
-    // );
-
     parsed.files = res;
     engine.destroy();
   }
-
-  // if(parsed.files!=[]){
-  //   print(parsed.files)
-  // }
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -153,7 +140,7 @@ const toStream = async (
       return null;
     }
 
-    console.log(parsed.files[index]["name"]);
+    // console.log(parsed.files[index]["name"]);
 
     title += index == -1 ? "" : `\n${parsed.files[index]["name"]}`;
   }
@@ -167,8 +154,10 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
-    console.log(parsed.files[index]["name"]);
+    // console.log(parsed.files[index]["name"]);
   }
+
+  console.log({ title });
 
   title += "\n" + getQuality(title);
 
