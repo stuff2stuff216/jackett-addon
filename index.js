@@ -303,7 +303,7 @@ const host = "http://82.123.61.186:9117";
 const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=torrent9`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=torrent9&Tracker%5B%5D=bulltorrent&Tracker%5B%5D=solitorrents`;
   console.log({ query });
   return await fetch(url, {
     headers: {
@@ -480,9 +480,9 @@ app
     result.sort((a, b) => {
       return +a["Peers"] - +b["Peers"];
     });
-    
 
-    result = result?.length >= 10 ? result.splice(-10) : result;
+
+    result = result?.length >= 15 ? result.splice(-15) : result;
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
