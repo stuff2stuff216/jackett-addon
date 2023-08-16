@@ -140,8 +140,10 @@ const toStream = async (
       return null;
     }
 
-    title += index == -1 && title ? "" : `\n${parsed.files[index]["name"]}`;
-    title = title ? "" : parsed.files[index]["name"];
+    console.log({ epname: parsed.files[index]["name"] });
+
+    title += !title ? "" : `\n${parsed.files[index]["name"]}`;
+    title = title ?? parsed.files[index]["name"];
   }
 
   if (media == "movie") {
