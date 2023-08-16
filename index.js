@@ -481,8 +481,8 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-
     result = result?.length >= 10 ? result.splice(-10) : result;
+    result.reverse();
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
