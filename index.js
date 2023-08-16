@@ -157,7 +157,7 @@ const toStream = async (
 
   title = title ?? parsed.files[index]["name"];
 
-  console.log({ title });
+  // console.log({ title });
 
   title += "\n" + getQuality(title);
 
@@ -293,7 +293,7 @@ const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=torrent9&Tracker%5B%5D=bulltorrent&Tracker%5B%5D=solitorrents`;
-  console.log({ query });
+  // console.log({ query });
   return await fetch(url, {
     headers: {
       accept: "*/*",
@@ -431,7 +431,7 @@ app
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    console.log({ name: meta?.name, year: meta?.year });
+    // console.log({ name: meta?.name, year: meta?.year });
 
     let query = "";
     query = meta?.name;
