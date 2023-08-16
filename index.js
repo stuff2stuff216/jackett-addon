@@ -482,7 +482,7 @@ app
     });
 
 
-    result = result?.length >= 15 ? result.splice(-15) : result;
+    result = result?.length >= 10 ? result.splice(-10) : result;
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
