@@ -290,11 +290,11 @@ const streamFromMagnet = (
 let stream_results = [];
 let torrent_results = [];
 
-const host = "http://82.123.61.186:9117";
-const apiKey = "h3cotr040alw3lqbuhjgrorcal76bv17";
+const host = "http://2.116.240.16:9117";
+const apiKey = "4apl4g2qxcr94b91pe80rxc7ov9dlthk";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=bitsearch&Tracker%5B%5D=nyaasi&Tracker%5B%5D=torrent9&Tracker%5B%5D=bulltorrent`;
+  let url = `${host}/jackett/api/v2.0/indexers/type:public/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=torrentz2eu&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
   // console.log({ query });
   return await fetch(url, {
     headers: {
@@ -387,10 +387,10 @@ app
 
     //
     var json = {
-      id: "daiki.jackett.strem",
-      version: "1.0.3",
-      name: "JACKETT.",
-      description: "Movie & TV Streams from Jackett",
+      id: "daiki.jackettpb.stream",
+      version: "1.0.1",
+      name: "Jackett for PB, Kkass,...",
+      description: "Movie & TV Streams from Jackett ",
       logo: "https://raw.githubusercontent.com/daniwalter001/daniwalter001/main/52852137.png",
       resources: [
         {
