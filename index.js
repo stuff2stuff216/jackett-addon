@@ -294,7 +294,7 @@ const host = "http://2.116.240.16:9117";
 const apiKey = "4apl4g2qxcr94b91pe80rxc7ov9dlthk";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=torrentz2eu&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
   // console.log({ query });
   return await fetch(url, {
     headers: {
