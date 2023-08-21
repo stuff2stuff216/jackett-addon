@@ -39,3 +39,20 @@ Jackett:[
 // https://stremio2.stuff2-stuff216.workers.dev/stream/series/kitsu:46170:2.json
 
 // https://anime-kitsu.strem.fun/meta/anime/kitsu:46170.json
+
+
+
+
+//TODO
+
+----> change
+     var torrent = parseTorrent(buf)
+----> to 
+ var torrent;
+
+      try {
+        torrent = parseTorrent(buf)
+      } catch (error) {
+        return error
+      }
+-----> in torrent-steam > index.js file L621

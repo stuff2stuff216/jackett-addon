@@ -64,21 +64,24 @@ const toStream = async (
   let title = tor.extraTag || parsed.name;
   let index = -1;
 
-  if (!parsed.files && uri.startsWith("magnet")) {
+  if (!parsed.files && uri.startsWith("magnet:?")) {
+    // console.log({ uri });
     var engine = torrentStream("magnet:" + uri);
-    let res = await new Promise((resolve, reject) => {
-      engine.on("ready", function () {
-        resolve(engine.files);
+    try {
+      let res = await new Promise((resolve, reject) => {
+        engine.on("ready", function () {
+          resolve(engine.files);
+        });
+        setTimeout(() => {
+          resolve([]);
+        }, 10000); //
       });
-
-      //
-      setTimeout(() => {
-        resolve([]);
-      }, 10000); // Too slooooow, the server is too slow
-    });
-
-    parsed.files = res;
-    engine.destroy();
+      parsed.files = res;
+    } catch (error) {
+      console.log("Done with that error");
+      return null;
+    }
+    engine ? engine.destroy() : null;
   }
 
   if (media == "series") {
@@ -242,19 +245,25 @@ const streamFromMagnet = (
     if (realUrl) {
       // console.log({ realUrl });
       if (realUrl?.startsWith("magnet:?")) {
-        resolve(
-          toStream(
-            parseTorrent(realUrl),
-            realUrl,
-            tor,
-            type,
-            s,
-            e,
-            abs_season,
-            abs_episode,
-            abs
-          )
-        );
+        try {
+          let parsed = parseTorrent(realUrl);
+          resolve(
+            toStream(
+              parsed,
+              realUrl,
+              tor,
+              type,
+              s,
+              e,
+              abs_season,
+              abs_episode,
+              abs
+            )
+          );
+        } catch (error) {
+          // console.log("Error getting magnet info" + error);
+          resolve(null);
+        }
       } else if (realUrl?.startsWith("http")) {
         parseTorrent.remote(realUrl, (err, parsed) => {
           if (!err) {
@@ -433,7 +442,7 @@ app
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    // console.log({ name: meta?.name, year: meta?.year });
+    console.log({ name: meta?.name, year: meta?.year });
 
     let query = "";
     query = meta?.name;
@@ -472,7 +481,8 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    result = result?.length >= 10 ? result.splice(-10) : result;
+    // result = result?.length >= 10 ? result.splice(-10) : result;
+    result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
