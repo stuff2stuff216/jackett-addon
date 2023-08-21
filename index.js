@@ -290,8 +290,8 @@ const streamFromMagnet = (
 let stream_results = [];
 let torrent_results = [];
 
-const host = "http://2.116.240.16:9117";
-const apiKey = "4apl4g2qxcr94b91pe80rxc7ov9dlthk";
+const host = "http://2.229.201.203:9117/jackett";
+const apiKey = "f0or1nqozhmo0x9nafwje6zk843p1fce";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
@@ -449,6 +449,8 @@ app
           encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
+        // fetchTorrent(encodeURIComponent(`${query} Saison ${s ?? "1"}`)),
       ];
 
       if (abs) {
@@ -464,7 +466,8 @@ app
       result = [
         ...result[0],
         ...result[1],
-        ...(result?.length >= 3 ? result[2] : []),
+        ...result[2],
+        ...(result?.length >= 4 ? result[3] : []),
       ];
     }
 
