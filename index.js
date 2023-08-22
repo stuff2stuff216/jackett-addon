@@ -86,19 +86,24 @@ const toStream = async (
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
       }
 
-      let containS = (element) =>
-        element["name"]?.toLowerCase()?.includes(`s${s?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`s${s}`);
-
-      let containE = (element) =>
-        element["name"]?.toLowerCase()?.includes(`e${e?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`e${e}`);
+      let containEandS = (element) =>
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s}e${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
 
       let containE_S = (element) =>
         element["name"]
@@ -126,7 +131,7 @@ const toStream = async (
 
       return (
         isVideo(element) &&
-        ((containS(element) && containE(element)) ||
+        (containEandS(element) ||
           containE_S(element) ||
           (((abs && containsAbsoluteE(element)) ||
             (abs && containsAbsoluteE_(element))) &&
@@ -144,8 +149,6 @@ const toStream = async (
     }
 
     title = !!title ? title + "\n" + parsed.files[index]["name"] : null;
-
-    // console.log({ title });
   }
 
   if (media == "movie") {
@@ -157,12 +160,10 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
-    // console.log(parsed.files[index]["name"]);
   }
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
-
-  //console.log({ title });
 
   title += "\n" + getQuality(title);
 
@@ -172,8 +173,6 @@ const toStream = async (
       ? `${getSize(0)}`
       : `${getSize(parsed.files[index]["length"] ?? 0)}`
   } | ${subtitle} `;
-
-  // console.log({ title });
 
   return {
     name: tor["Tracker"],
@@ -195,8 +194,7 @@ const toStream = async (
 
 let isRedirect = async (url) => {
   try {
-    const controller = new AbortController();
-    // 5 second timeout:
+    const controller = new AbortController(); // 5 second timeout:
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(url, {
@@ -458,6 +456,8 @@ app
           encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Saison ${s ?? "1"}`)),
       ];
 
       if (abs) {
@@ -473,7 +473,8 @@ app
       result = [
         ...result[0],
         ...result[1],
-        ...(result?.length >= 3 ? result[2] : []),
+        ...result[2],
+        ...(result?.length >= 4 ? result[3] : []),
       ];
     }
 
