@@ -65,7 +65,7 @@ const toStream = async (
   let index = -1;
 
   if (!parsed.files && uri.startsWith("magnet")) {
-    var engine = torrentStream("magnet:" + uri);
+    var engine = torrentStream("magnet:" + uri, { connections: 10 });
     let res = await new Promise((resolve, reject) => {
       engine.on("ready", function () {
         resolve(engine.files);
@@ -83,19 +83,24 @@ const toStream = async (
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
       }
 
-      let containS = (element) =>
-        element["name"]?.toLowerCase()?.includes(`s${s?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`s${s}`);
-
-      let containE = (element) =>
-        element["name"]?.toLowerCase()?.includes(`e${e?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`e${e}`);
+      let containEandS = (element) =>
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s}e${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
 
       let containE_S = (element) =>
         element["name"]
@@ -123,7 +128,7 @@ const toStream = async (
 
       return (
         isVideo(element) &&
-        ((containS(element) && containE(element)) ||
+        (containEandS(element) ||
           containE_S(element) ||
           (((abs && containsAbsoluteE(element)) ||
             (abs && containsAbsoluteE_(element))) &&
@@ -154,8 +159,8 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
-    // console.log(parsed.files[index]["name"]);
   }
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
@@ -433,7 +438,7 @@ app
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    // console.log({ name: meta?.name, year: meta?.year });
+    console.log({ name: meta?.name, year: meta?.year });
 
     let query = "";
     query = meta?.name;
