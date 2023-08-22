@@ -83,7 +83,7 @@ const toStream = async (
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      console.log({ element: element["name"] });
+      // console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
@@ -160,7 +160,7 @@ const toStream = async (
       return null;
     }
   }
-  console.log(parsed.files[index]["name"]);
+  // console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
