@@ -161,7 +161,7 @@ const toStream = async (
       return null;
     }
   }
-  // console.log(parsed.files[index]["name"]);
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
