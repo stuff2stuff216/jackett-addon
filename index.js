@@ -65,7 +65,7 @@ const toStream = async (
   let index = -1;
 
   if (!parsed.files && uri.startsWith("magnet")) {
-    var engine = torrentStream("magnet:" + uri);
+    var engine = torrentStream("magnet:" + uri, { connections: 10 });
     let res = await new Promise((resolve, reject) => {
       engine.on("ready", function () {
         resolve(engine.files);
@@ -74,12 +74,15 @@ const toStream = async (
       //
       setTimeout(() => {
         resolve([]);
-      }, 10000); // Too slooooow, the server is too slow
+      }, 20000); // Too slooooow, the server is too slow
     });
 
     parsed.files = res;
     engine.destroy();
   }
+
+  // console.log({ name: parsed?.name });
+  // console.log({ size: parsed?.files?.length });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -89,13 +92,18 @@ const toStream = async (
         return false;
       }
 
-      let containS = (element) =>
-        element["name"]?.toLowerCase()?.includes(`s${s?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`s${s}`);
-
-      let containE = (element) =>
-        element["name"]?.toLowerCase()?.includes(`e${e?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`e${e}`);
+      let containEandS = (element) =>
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s}e${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
 
       let containE_S = (element) =>
         element["name"]
@@ -121,18 +129,7 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
 
-      return (
-        isVideo(element) &&
-        ((containS(element) && containE(element)) ||
-          containE_S(element) ||
-          (((abs && containsAbsoluteE(element)) ||
-            (abs && containsAbsoluteE_(element))) &&
-            !(
-              element["name"]?.toLowerCase()?.includes("s0") ||
-              element["name"]?.toLowerCase()?.includes("e0") ||
-              element["name"]?.toLowerCase()?.includes("season")
-            )))
-      );
+      return isVideo(element) && (containEandS(element) || containE_S(element));
     });
 
     //
@@ -154,8 +151,8 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
-    // console.log(parsed.files[index]["name"]);
   }
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
@@ -290,8 +287,8 @@ const streamFromMagnet = (
 let stream_results = [];
 let torrent_results = [];
 
-const host = "http://2.116.240.16:9117";
-const apiKey = "4apl4g2qxcr94b91pe80rxc7ov9dlthk";
+const host = "http://2.229.201.203:9117/jackett";
+const apiKey = "f0or1nqozhmo0x9nafwje6zk843p1fce";
 
 let fetchTorrent = async (query) => {
   let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
@@ -433,7 +430,7 @@ app
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    // console.log({ name: meta?.name, year: meta?.year });
+    console.log({ name: meta?.name, year: meta?.year });
 
     let query = "";
     query = meta?.name;
@@ -449,6 +446,7 @@ app
           encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
       ];
 
       if (abs) {
@@ -464,7 +462,8 @@ app
       result = [
         ...result[0],
         ...result[1],
-        ...(result?.length >= 3 ? result[2] : []),
+        ...result[2],
+        ...(result?.length >= 4 ? result[3] : []),
       ];
     }
 
@@ -472,7 +471,7 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    result = result?.length >= 10 ? result.splice(-10) : result;
+    // result = result?.length >= 10 ? result.splice(-10) : result;
     result.reverse();
 
     // console.log({ result });
