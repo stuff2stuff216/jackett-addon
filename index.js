@@ -64,21 +64,24 @@ const toStream = async (
   let title = tor.extraTag || parsed.name;
   let index = -1;
 
-  if (!parsed.files && uri.startsWith("magnet")) {
+  if (!parsed.files && uri.startsWith("magnet:?")) {
+    // console.log({ uri });
     var engine = torrentStream("magnet:" + uri);
-    let res = await new Promise((resolve, reject) => {
-      engine.on("ready", function () {
-        resolve(engine.files);
+    try {
+      let res = await new Promise((resolve, reject) => {
+        engine.on("ready", function () {
+          resolve(engine.files);
+        });
+        setTimeout(() => {
+          resolve([]);
+        }, 10000); //
       });
-
-      //
-      setTimeout(() => {
-        resolve([]);
-      }, 10000); // Too slooooow, the server is too slow
-    });
-
-    parsed.files = res;
-    engine.destroy();
+      parsed.files = res;
+    } catch (error) {
+      console.log("Done with that error");
+      return null;
+    }
+    engine ? engine.destroy() : null;
   }
 
   if (media == "series") {
@@ -89,13 +92,18 @@ const toStream = async (
         return false;
       }
 
-      let containS = (element) =>
-        element["name"]?.toLowerCase()?.includes(`s${s?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`s${s}`);
-
-      let containE = (element) =>
-        element["name"]?.toLowerCase()?.includes(`e${e?.padStart(2, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`e${e}`);
+      let containEandS = (element) =>
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
+        element["name"]?.toLowerCase()?.includes(`s${s}e${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
 
       let containE_S = (element) =>
         element["name"]
@@ -123,7 +131,7 @@ const toStream = async (
 
       return (
         isVideo(element) &&
-        ((containS(element) && containE(element)) ||
+        (containEandS(element) ||
           containE_S(element) ||
           (((abs && containsAbsoluteE(element)) ||
             (abs && containsAbsoluteE_(element))) &&
@@ -141,8 +149,6 @@ const toStream = async (
     }
 
     title = !!title ? title + "\n" + parsed.files[index]["name"] : null;
-
-    // console.log({ title });
   }
 
   if (media == "movie") {
@@ -154,12 +160,10 @@ const toStream = async (
     if (index == -1) {
       return null;
     }
-    // console.log(parsed.files[index]["name"]);
   }
+  // console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
-
-  //console.log({ title });
 
   title += "\n" + getQuality(title);
 
@@ -169,8 +173,6 @@ const toStream = async (
       ? `${getSize(0)}`
       : `${getSize(parsed.files[index]["length"] ?? 0)}`
   } | ${subtitle} `;
-
-  // console.log({ title });
 
   return {
     name: tor["Tracker"],
@@ -192,8 +194,7 @@ const toStream = async (
 
 let isRedirect = async (url) => {
   try {
-    const controller = new AbortController();
-    // 5 second timeout:
+    const controller = new AbortController(); // 5 second timeout:
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(url, {
@@ -242,19 +243,25 @@ const streamFromMagnet = (
     if (realUrl) {
       // console.log({ realUrl });
       if (realUrl?.startsWith("magnet:?")) {
-        resolve(
-          toStream(
-            parseTorrent(realUrl),
-            realUrl,
-            tor,
-            type,
-            s,
-            e,
-            abs_season,
-            abs_episode,
-            abs
-          )
-        );
+        try {
+          let parsed = parseTorrent(realUrl);
+          resolve(
+            toStream(
+              parsed,
+              realUrl,
+              tor,
+              type,
+              s,
+              e,
+              abs_season,
+              abs_episode,
+              abs
+            )
+          );
+        } catch (error) {
+          // console.log("Error getting magnet info" + error);
+          resolve(null);
+        }
       } else if (realUrl?.startsWith("http")) {
         parseTorrent.remote(realUrl, (err, parsed) => {
           if (!err) {
@@ -426,14 +433,14 @@ app
       tmp = id.split(":");
     }
 
-    let [tt, s, e, abs_season, abs_episode, abs] = tmp;
-
     console.log(tmp);
+
+    let [tt, s, e, abs_season, abs_episode, abs] = tmp;
 
     let meta = await getMeta(tt, media);
 
     console.log({ meta: id });
-    // console.log({ name: meta?.name, year: meta?.year });
+    console.log({ name: meta?.name, year: meta?.year });
 
     let query = "";
     query = meta?.name;
@@ -449,6 +456,8 @@ app
           encodeURIComponent(`${query} S${(s ?? "1").padStart(2, "0")}`)
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Saison ${s ?? "1"}`)),
       ];
 
       if (abs) {
@@ -464,7 +473,8 @@ app
       result = [
         ...result[0],
         ...result[1],
-        ...(result?.length >= 3 ? result[2] : []),
+        ...result[2],
+        ...(result?.length >= 4 ? result[3] : []),
       ];
     }
 
@@ -472,7 +482,8 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    result = result?.length >= 10 ? result.splice(-10) : result;
+    // result = result?.length >= 10 ? result.splice(-10) : result;
+    // result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
