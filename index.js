@@ -433,9 +433,9 @@ app
       tmp = id.split(":");
     }
 
-    let [tt, s, e, abs_season, abs_episode, abs] = tmp;
-
     console.log(tmp);
+
+    let [tt, s, e, abs_season, abs_episode, abs] = tmp;
 
     let meta = await getMeta(tt, media);
 
@@ -483,7 +483,7 @@ app
     });
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    result = result?.length >= 20 ? result.splice(-20) : result;
+    // result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
