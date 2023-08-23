@@ -129,7 +129,18 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
 
-      return isVideo(element) && (containEandS(element) || containE_S(element));
+      return (
+        isVideo(element) &&
+        (containEandS(element) ||
+          containE_S(element) ||
+          (((abs && containsAbsoluteE(element)) ||
+            (abs && containsAbsoluteE_(element))) &&
+            !(
+              element["name"]?.toLowerCase()?.includes("s0") ||
+              element["name"]?.toLowerCase()?.includes("e0") ||
+              element["name"]?.toLowerCase()?.includes("season")
+            )))
+      );
     });
 
     //
@@ -471,7 +482,7 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    // result = result?.length >= 10 ? result.splice(-10) : result;
+    result = result?.length >= 15 ? result.splice(-15) : result;
     result.reverse();
 
     // console.log({ result });
