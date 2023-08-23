@@ -74,12 +74,15 @@ const toStream = async (
       //
       setTimeout(() => {
         resolve([]);
-      }, 10000); // Too slooooow, the server is too slow
+      }, 20000); // Too slooooow, the server is too slow
     });
 
     parsed.files = res;
     engine.destroy();
   }
+
+  // console.log({ name: parsed?.name });
+  // console.log({ size: parsed?.files?.length });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -126,18 +129,7 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
 
-      return (
-        isVideo(element) &&
-        (containEandS(element) ||
-          containE_S(element) ||
-          (((abs && containsAbsoluteE(element)) ||
-            (abs && containsAbsoluteE_(element))) &&
-            !(
-              element["name"]?.toLowerCase()?.includes("s0") ||
-              element["name"]?.toLowerCase()?.includes("e0") ||
-              element["name"]?.toLowerCase()?.includes("season")
-            )))
-      );
+      return isVideo(element) && (containEandS(element) || containE_S(element));
     });
 
     //
@@ -160,7 +152,7 @@ const toStream = async (
       return null;
     }
   }
-  // console.log(parsed.files[index]["name"]);
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
@@ -455,7 +447,6 @@ app
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
         fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
-        // fetchTorrent(encodeURIComponent(`${query} Saison ${s ?? "1"}`)),
       ];
 
       if (abs) {
@@ -480,7 +471,7 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    result = result?.length >= 10 ? result.splice(-10) : result;
+    // result = result?.length >= 10 ? result.splice(-10) : result;
     result.reverse();
 
     // console.log({ result });
