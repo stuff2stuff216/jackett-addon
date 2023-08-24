@@ -535,7 +535,13 @@ app
         );
 
         if (abs) {
-          promises.push(fetchTorrent(encodeURIComponent(`${query}}`)));
+          promises.push(fetchTorrent(encodeURIComponent(`${query}} Complete`)));
+        }
+
+        if (abs) {
+          promises.push(
+            fetchTorrent(encodeURIComponent(`${query}} Collection`))
+          );
         }
       }
 
@@ -548,6 +554,7 @@ app
         ...result[3],
         ...(abs ? result[4] : []),
         ...(abs ? result[5] : []),
+        ...(abs ? result[6] : []),
       ];
 
       // console.log({ result });
@@ -566,7 +573,7 @@ app
     console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    // result = result?.length >= 20 ? result.splice(-20) : result;
+    result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
