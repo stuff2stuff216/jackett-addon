@@ -241,10 +241,10 @@ const toStream = async (
     index == -1 || parsed.files == []
       ? `${getSize(0)}`
       : `${getSize(parsed.files[index]["length"] ?? 0)}`
-  } | ${subtitle} `;
+  }`;
 
   return {
-    name: tor["Tracker"],
+    name: tor["Tracker"] + "\n" + subtitle,
     type: type,
     infoHash: infoHash,
     fileIdx: index == -1 ? 0 : index,
