@@ -84,8 +84,8 @@ const toStream = async (
     engine ? engine.destroy() : null;
   }
 
-  console.log({ name: title });
-  console.log({ size: parsed?.files?.length });
+  // console.log({ name: title });
+  // console.log({ size: parsed?.files?.length });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -564,7 +564,7 @@ app
     // console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    result = result?.length >= 20 ? result.splice(-20) : result;
+    result = result?.length >= 50 ? result.splice(-50) : result;
     result.reverse();
 
     // console.log({ result });
