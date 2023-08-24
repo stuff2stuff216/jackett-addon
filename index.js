@@ -538,6 +538,10 @@ app
         );
       }
 
+      if (abs) {
+        promises.push(fetchTorrent(encodeURIComponent(`${query} Complete}`)));
+      }
+
       result = await Promise.all(promises);
 
       result = [
@@ -546,6 +550,7 @@ app
         ...result[2],
         ...result[3],
         ...(result.length >= 5 ? result[4] : []),
+        ...(result.length >= 6 ? result[5] : []),
       ];
 
       // console.log({ result });
