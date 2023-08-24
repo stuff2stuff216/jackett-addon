@@ -536,16 +536,6 @@ app
             encodeURIComponent(`${query} - ${abs_episode?.padStart(3, "0")}`)
           )
         );
-
-        if (abs) {
-          promises.push(fetchTorrent(encodeURIComponent(`${query}} Complete`)));
-        }
-
-        if (abs) {
-          promises.push(
-            fetchTorrent(encodeURIComponent(`${query}} Collection`))
-          );
-        }
       }
 
       result = await Promise.all(promises);
@@ -555,9 +545,7 @@ app
         ...result[1],
         ...result[2],
         ...result[3],
-        ...(abs ? result[4] : []),
-        ...(abs ? result[5] : []),
-        ...(abs ? result[6] : []),
+        ...(result.length >= 5 ? result[4] : []),
       ];
 
       // console.log({ result });
