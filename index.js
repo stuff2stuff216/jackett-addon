@@ -117,22 +117,31 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
         element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`) ||
-        element["name"]
-          ?.toLowerCase()
-          ?.includes(
-            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(2, "0")}`
-          ) ||
-        element["name"]
-          ?.toLowerCase()
-          ?.includes(
-            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(3, "0")}`
-          ) ||
-        element["name"]
-          ?.toLowerCase()
-          ?.includes(
-            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(4, "0")}`
-          );
-
+        (abs &&
+          (element["name"]
+            ?.toLowerCase()
+            ?.includes(
+              `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                2,
+                "0"
+              )}`
+            ) ||
+            element["name"]
+              ?.toLowerCase()
+              ?.includes(
+                `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                  3,
+                  "0"
+                )}`
+              ) ||
+            element["name"]
+              ?.toLowerCase()
+              ?.includes(
+                `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                  4,
+                  "0"
+                )}`
+              )));
       let containE_S = (element) =>
         //Sxx - xx
         //Sx - xx
