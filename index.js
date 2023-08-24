@@ -535,11 +535,8 @@ app
         );
 
         if (abs) {
-          promises.push(
-            fetchTorrent(
-              encodeURIComponent(`${query}}`)
-            )
-          );
+          promises.push(fetchTorrent(encodeURIComponent(`${query}}`)));
+        }
       }
 
       result = await Promise.all(promises);
