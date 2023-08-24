@@ -84,12 +84,9 @@ const toStream = async (
     engine ? engine.destroy() : null;
   }
 
-  // console.log({ name: title });
-  // console.log({ size: parsed.files?.length ?? 0 });
-
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
@@ -100,6 +97,9 @@ const toStream = async (
         //Sxx - Exx
         //Sxx.Exx
         //Season xx Exx
+        //SasEae
+        //SasEaex
+        //SasEaexx
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
@@ -116,7 +116,22 @@ const toStream = async (
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
-        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(
+            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(2, "0")}`
+          ) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(
+            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(3, "0")}`
+          ) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(
+            `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(4, "0")}`
+          );
 
       let containE_S = (element) =>
         //Sxx - xx
@@ -153,10 +168,10 @@ const toStream = async (
           ?.includes(` ${abs_episode?.padStart(4, "0")} `);
 
       let containsAbsoluteE_ = (element) =>
-        //- xx.
-        //- xxx.
-        //- xxxx.
-        //- 0x.
+        // xx.
+        // xxx.
+        // xxxx.
+        // 0x.
         element["name"]
           ?.toLowerCase()
           ?.includes(` ${abs_episode?.padStart(2, "0")}.`) ||
@@ -504,7 +519,7 @@ app
       if (abs) {
         promises.push(
           fetchTorrent(
-            encodeURIComponent(`${query} E${abs_episode?.padStart(2, "0")}`)
+            encodeURIComponent(`${query} - ${abs_episode?.padStart(3, "0")}`)
           )
         );
       }
@@ -515,7 +530,8 @@ app
         ...result[0],
         ...result[1],
         ...result[2],
-        ...(result?.length >= 4 ? result[3] : []),
+        ...result[3],
+        ...(abs ? result[4] : []),
       ];
     }
 
