@@ -569,7 +569,7 @@ app
     // console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    result = result?.length >= 50 ? result.splice(-50) : result;
+    result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
