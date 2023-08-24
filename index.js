@@ -86,7 +86,7 @@ const toStream = async (
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
 
       if (!element["name"]) {
         return false;
@@ -219,7 +219,7 @@ const toStream = async (
 
   if (media == "movie") {
     index = (parsed?.files ?? []).findIndex((element, index) => {
-      // console.log({ element: element["name"] });
+      console.log({ element: element["name"] });
       return isVideo(element);
     });
     //
@@ -564,13 +564,13 @@ app
       return +a["Peers"] - +b["Peers"];
     });
 
-    console.log("------------------------------------");
-    result.map((torrent) => {
-      console.log(
-        `${torrent["Title"]} => ${torrent["Peers"]} => ${torrent["Tracker"]}\r`
-      );
-    });
-    console.log("------------------------------------");
+    // console.log("------------------------------------");
+    // result.map((torrent) => {
+    //   console.log(
+    //     `${torrent["Title"]} => ${torrent["Peers"]} => ${torrent["Tracker"]}\r`
+    //   );
+    // });
+    // console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
     result = result?.length >= 20 ? result.splice(-20) : result;
