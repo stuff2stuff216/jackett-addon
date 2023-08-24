@@ -244,7 +244,7 @@ const toStream = async (
   }`;
 
   return {
-    name: tor["Tracker"] + "\r\n" + subtitle,
+    name: `${tor["Tracker"]}\n${subtitle}`,
     type: type,
     infoHash: infoHash,
     fileIdx: index == -1 ? 0 : index,
