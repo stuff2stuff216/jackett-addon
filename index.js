@@ -572,7 +572,7 @@ app
         // console.log(torrent["Peers"]);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 1
+          torrent["Peers"] >= 1
         ) {
           return streamFromMagnet(
             torrent,
