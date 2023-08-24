@@ -176,7 +176,9 @@ const toStream = async (
             (abs && containsAbsoluteE_(element))) &&
             !(
               element["name"]?.toLowerCase()?.includes("s0") ||
+              element["name"]?.toLowerCase()?.includes(`s${abs_season}`) ||
               element["name"]?.toLowerCase()?.includes("e0") ||
+              element["name"]?.toLowerCase()?.includes(`e${abs_episode}`) ||
               element["name"]?.toLowerCase()?.includes("season")
             )))
       );
