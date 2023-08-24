@@ -544,11 +544,21 @@ app
         ...result[3],
         ...(abs ? result[4] : []),
       ];
+
+      // console.log({ result });
     }
 
     result.sort((a, b) => {
       return +a["Peers"] - +b["Peers"];
     });
+
+    console.log("------------------------------------");
+    result.map((torrent) => {
+      console.log(
+        `${torrent["Title"]} => ${torrent["Peers"]} => ${torrent["Tracker"]}\r`
+      );
+    });
+    console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
     result = result?.length >= 20 ? result.splice(-20) : result;
@@ -558,8 +568,8 @@ app
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        console.log(torrent["Title"]);
-        console.log(torrent["Peers"]);
+        // console.log(torrent["Title"]);
+        // console.log(torrent["Peers"]);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
           torrent["Peers"] > 1
