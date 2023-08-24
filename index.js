@@ -74,7 +74,7 @@ const toStream = async (
         });
         setTimeout(() => {
           resolve([]);
-        }, 10000); //
+        }, 20000); //
       });
       parsed.files = res;
     } catch (error) {
@@ -83,6 +83,9 @@ const toStream = async (
     }
     engine ? engine.destroy() : null;
   }
+
+  // console.log({ name: title });
+  // console.log({ size: parsed.files?.length ?? 0 });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -93,9 +96,19 @@ const toStream = async (
       }
 
       let containEandS = (element) =>
+        //SxxExx
+        //Sxx - Exx
+        //Sxx.Exx
+        //Season xx Exx
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")} - e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}.e${e?.padStart(2, "0")}`) ||
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
@@ -106,6 +119,11 @@ const toStream = async (
         element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
 
       let containE_S = (element) =>
+        //Sxx - xx
+        //Sx - xx
+        //Sx - x
+        //Season x - x
+        //Season x - xx
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")} - ${e?.padStart(2, "0")}`) ||
@@ -113,21 +131,42 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`s${s} - ${e?.padStart(2, "0")}`) ||
         element["name"]?.toLowerCase()?.includes(`s${s} - ${e}`) ||
-        element["name"]?.toLowerCase()?.includes(`season ${s} - ${e}`);
+        element["name"]?.toLowerCase()?.includes(`season ${s} - ${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`season ${s} - ${e?.padStart(2, "0")}`);
 
       let containsAbsoluteE = (element) =>
+        //- xx
+        //- xxx
+        //- xxxx
+        //- 0x
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(2, "0")}`) ||
+          ?.includes(` ${abs_episode?.padStart(2, "0")} `) ||
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(3, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`- 0${abs_episode}`);
+          ?.includes(` ${abs_episode?.padStart(3, "0")} `) ||
+        element["name"]?.toLowerCase()?.includes(` 0${abs_episode} `) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(4, "0")} `);
 
       let containsAbsoluteE_ = (element) =>
+        //- xx.
+        //- xxx.
+        //- xxxx.
+        //- 0x.
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
+          ?.includes(` ${abs_episode?.padStart(2, "0")}.`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(3, "0")}.`) ||
+        element["name"]?.toLowerCase()?.includes(` 0${abs_episode}.`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(4, "0")}.`);
 
       return (
         isVideo(element) &&
@@ -161,7 +200,7 @@ const toStream = async (
       return null;
     }
   }
-  // console.log(parsed.files[index]["name"]);
+  console.log(parsed.files[index]["name"]);
 
   title = title ?? parsed.files[index]["name"];
 
@@ -483,7 +522,7 @@ app
     });
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    result = result?.length >= 20 ? result.splice(-20) : result;
+    // result = result?.length >= 20 ? result.splice(-20) : result;
     result.reverse();
 
     // console.log({ result });
