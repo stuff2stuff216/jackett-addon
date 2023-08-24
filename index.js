@@ -538,10 +538,6 @@ app
         );
       }
 
-      if (abs) {
-        promises.push(fetchTorrent(encodeURIComponent(`${query} Complete}`)));
-      }
-
       result = await Promise.all(promises);
 
       result = [
@@ -550,7 +546,6 @@ app
         ...result[2],
         ...result[3],
         ...(result.length >= 5 ? result[4] : []),
-        ...(result.length >= 6 ? result[5] : []),
       ];
 
       // console.log({ result });
@@ -569,7 +564,7 @@ app
     // console.log("------------------------------------");
 
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    result = result?.length >= 20 ? result.splice(-20) : result;
+    result = result?.length >= 15 ? result.splice(-15) : result;
     result.reverse();
 
     // console.log({ result });
@@ -580,7 +575,7 @@ app
         // console.log(torrent["Peers"]);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 1
+          torrent["Peers"] >= 1
         ) {
           return streamFromMagnet(
             torrent,
