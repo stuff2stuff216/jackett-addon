@@ -444,7 +444,9 @@ async function getImdbFromKitsu(id) {
           (meta["imdbSeason"] ?? 1).toString(),
           (meta["imdbEpisode"] ?? 1).toString(),
           (meta["season"] ?? 1).toString(),
-          (meta["episode"] ?? 1).toString(),
+          (meta["imdbSeason"] ?? 1).toString() == 1
+            ? (meta["imdbEpisode"] ?? 1).toString()
+            : (meta["episode"] ?? 1).toString(),
           meta["imdbEpisode"] != meta["episode"] ||
             (meta["imdbSeason"] ?? 1).toString() == 1,
           // true,
