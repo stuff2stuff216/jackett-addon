@@ -97,9 +97,9 @@ const toStream = async (
         //Sxx - Exx
         //Sxx.Exx
         //Season xx Exx
-        //SasEae
-        //SasEaex
-        //SasEaexx
+        //SasEae selon abs
+        //SasEaex  selon abs
+        //SasEaexx  selon abs
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
@@ -142,6 +142,7 @@ const toStream = async (
                   "0"
                 )}`
               )));
+
       let containE_S = (element) =>
         //Sxx - xx
         //Sx - xx
@@ -362,11 +363,13 @@ const streamFromMagnet = (
 let stream_results = [];
 let torrent_results = [];
 
-const host = "http://2.229.201.203:9117/jackett";
-const apiKey = "f0or1nqozhmo0x9nafwje6zk843p1fce";
+const host = "http://1.156.186.156:9117";
+const apiKey = "lfc52616kbv1ziq9iyidtyzccjgjfvqf";
 
 let fetchTorrent = async (query) => {
-  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
+  // let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
+
+  let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Query=${query}&Category%5B%5D=2000&Category%5B%5D=5000&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay&Tracker%5B%5D=torrent9`;
   // console.log({ query });
   return await fetch(url, {
     headers: {
@@ -521,6 +524,7 @@ app
         ),
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
         fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
+        fetchTorrent(encodeURIComponent(`${query} Complete`)),
       ];
 
       if (abs) {
@@ -537,7 +541,8 @@ app
         ...result[0],
         ...result[1],
         ...result[2],
-        ...(result?.length >= 4 ? result[3] : []),
+        ...result[3],
+        ...(result?.length >= 5 ? result[4] : []),
       ];
     }
 
@@ -548,13 +553,12 @@ app
     result = result?.length >= 15 ? result.splice(-15) : result;
     result.reverse();
 
-    // console.log({ result });
-
     let stream_results = await Promise.all(
       result.map((torrent) => {
+        // console.log(`${torrent["Title"]} => ${torrent["Peers"]}`);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 1
+          torrent["Peers"] >= 1
         ) {
           return streamFromMagnet(
             torrent,
