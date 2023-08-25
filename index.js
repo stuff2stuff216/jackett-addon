@@ -526,7 +526,7 @@ app
       if (abs) {
         promises.push(
           fetchTorrent(
-            encodeURIComponent(`${query} - ${abs_episode?.padStart(2, "0")}`)
+            encodeURIComponent(`${query} ${abs_episode?.padStart(2, "0")}`)
           )
         );
       }
