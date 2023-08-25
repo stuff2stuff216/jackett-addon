@@ -533,7 +533,11 @@ app
       if (abs) {
         promises.push(
           fetchTorrent(
-            encodeURIComponent(`${query} - ${abs_episode?.padStart(3, "0")}`)
+            encodeURIComponent(
+              `${query} - ${
+                s == 1 ? e?.padStart(3, "0") : abs_episode?.padStart(3, "0")
+              }`
+            )
           )
         );
       }
@@ -584,7 +588,7 @@ app
             s,
             e,
             abs_season,
-            abs_episode,
+            s == 1 ? e : abs_episode,
             abs
           );
         }
