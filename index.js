@@ -557,7 +557,7 @@ app
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
-        // console.log(`${torrent["Title"]} => ${torrent["Peers"]}`);
+        console.log(`${torrent["Title"]} => ${torrent["Peers"]}`);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
           torrent["Peers"] >= 1
