@@ -444,7 +444,9 @@ async function getImdbFromKitsu(id) {
           (meta["imdbSeason"] ?? 1).toString(),
           (meta["imdbEpisode"] ?? 1).toString(),
           (meta["season"] ?? 1).toString(),
-          (meta["episode"] ?? 1).toString(),
+          (meta["imdbSeason"] ?? 1).toString() == 1
+            ? (meta["imdbEpisode"] ?? 1).toString()
+            : (meta["episode"] ?? 1).toString(),
           meta["imdbEpisode"] != meta["episode"] ||
             (meta["imdbSeason"] ?? 1).toString() == 1,
           // true,
@@ -533,11 +535,7 @@ app
       if (abs) {
         promises.push(
           fetchTorrent(
-            encodeURIComponent(
-              `${query} - ${
-                s == 1 ? e?.padStart(3, "0") : abs_episode?.padStart(3, "0")
-              }`
-            )
+            encodeURIComponent(`${query} - ${abs_episode?.padStart(3, "0")}`)
           )
         );
       }
@@ -588,7 +586,7 @@ app
             s,
             e,
             abs_season,
-            s == 1 ? e : abs_episode,
+            abs_episode,
             abs
           );
         }
