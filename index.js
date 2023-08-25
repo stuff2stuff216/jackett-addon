@@ -74,7 +74,7 @@ const toStream = async (
         });
         setTimeout(() => {
           resolve([]);
-        }, 10000); //
+        }, 20000); //
       });
       parsed.files = res;
     } catch (error) {
@@ -83,6 +83,9 @@ const toStream = async (
     }
     engine ? engine.destroy() : null;
   }
+
+  // console.log({ name: title });
+  // console.log({ size: parsed?.files?.length });
 
   if (media == "series") {
     index = (parsed.files ?? []).findIndex((element, index) => {
@@ -93,9 +96,22 @@ const toStream = async (
       }
 
       let containEandS = (element) =>
+        //SxxExx
+        //Sxx - Exx
+        //Sxx.Exx
+        //Season xx Exx
+        //SasEae selon abs
+        //SasEaex  selon abs
+        //SasEaexx  selon abs
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")} - e${e?.padStart(2, "0")}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`s${s?.padStart(2, "0")}.e${e?.padStart(2, "0")}`) ||
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s}${e?.padStart(2, "0")}`) ||
@@ -103,9 +119,39 @@ const toStream = async (
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")}e${e}`) ||
-        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`);
+        element["name"]?.toLowerCase()?.includes(`season ${s} e${e}`) ||
+        (abs &&
+          (element["name"]
+            ?.toLowerCase()
+            ?.includes(
+              `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                2,
+                "0"
+              )}`
+            ) ||
+            element["name"]
+              ?.toLowerCase()
+              ?.includes(
+                `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                  3,
+                  "0"
+                )}`
+              ) ||
+            element["name"]
+              ?.toLowerCase()
+              ?.includes(
+                `s${abs_season?.padStart(2, "0")}e${abs_episode?.padStart(
+                  4,
+                  "0"
+                )}`
+              )));
 
       let containE_S = (element) =>
+        //Sxx - xx
+        //Sx - xx
+        //Sx - x
+        //Season x - x
+        //Season x - xx
         element["name"]
           ?.toLowerCase()
           ?.includes(`s${s?.padStart(2, "0")} - ${e?.padStart(2, "0")}`) ||
@@ -113,21 +159,42 @@ const toStream = async (
           ?.toLowerCase()
           ?.includes(`s${s} - ${e?.padStart(2, "0")}`) ||
         element["name"]?.toLowerCase()?.includes(`s${s} - ${e}`) ||
-        element["name"]?.toLowerCase()?.includes(`season ${s} - ${e}`);
+        element["name"]?.toLowerCase()?.includes(`season ${s} - ${e}`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(`season ${s} - ${e?.padStart(2, "0")}`);
 
       let containsAbsoluteE = (element) =>
+        //- xx
+        //- xxx
+        //- xxxx
+        //- 0x
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(2, "0")}`) ||
+          ?.includes(` ${abs_episode?.padStart(2, "0")} `) ||
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(3, "0")}`) ||
-        element["name"]?.toLowerCase()?.includes(`- 0${abs_episode}`);
+          ?.includes(` ${abs_episode?.padStart(3, "0")} `) ||
+        element["name"]?.toLowerCase()?.includes(` 0${abs_episode} `) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(4, "0")} `);
 
       let containsAbsoluteE_ = (element) =>
+        // xx.
+        // xxx.
+        // xxxx.
+        // 0x.
         element["name"]
           ?.toLowerCase()
-          ?.includes(`- ${abs_episode?.padStart(3, "0")}`);
+          ?.includes(` ${abs_episode?.padStart(2, "0")}.`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(3, "0")}.`) ||
+        element["name"]?.toLowerCase()?.includes(` 0${abs_episode}.`) ||
+        element["name"]
+          ?.toLowerCase()
+          ?.includes(` ${abs_episode?.padStart(4, "0")}.`);
 
       return (
         isVideo(element) &&
@@ -137,7 +204,9 @@ const toStream = async (
             (abs && containsAbsoluteE_(element))) &&
             !(
               element["name"]?.toLowerCase()?.includes("s0") ||
+              element["name"]?.toLowerCase()?.includes(`s${abs_season}`) ||
               element["name"]?.toLowerCase()?.includes("e0") ||
+              element["name"]?.toLowerCase()?.includes(`e${abs_episode}`) ||
               element["name"]?.toLowerCase()?.includes("season")
             )))
       );
@@ -172,10 +241,10 @@ const toStream = async (
     index == -1 || parsed.files == []
       ? `${getSize(0)}`
       : `${getSize(parsed.files[index]["length"] ?? 0)}`
-  } | ${subtitle} `;
+  }`;
 
   return {
-    name: tor["Tracker"],
+    name: `${tor["Tracker"]}\n${subtitle}`,
     type: type,
     infoHash: infoHash,
     fileIdx: index == -1 ? 0 : index,
@@ -376,8 +445,9 @@ async function getImdbFromKitsu(id) {
           (meta["imdbEpisode"] ?? 1).toString(),
           (meta["season"] ?? 1).toString(),
           (meta["episode"] ?? 1).toString(),
-          // meta["imdbEpisode"] != meta["episode"],
-          true,
+          meta["imdbEpisode"] != meta["episode"] ||
+            (meta["imdbSeason"] ?? 1).toString() == 1,
+          // true,
         ];
       } catch (error) {
         return null;
@@ -463,7 +533,7 @@ app
       if (abs) {
         promises.push(
           fetchTorrent(
-            encodeURIComponent(`${query} E${abs_episode?.padStart(2, "0")}`)
+            encodeURIComponent(`${query} - ${abs_episode?.padStart(3, "0")}`)
           )
         );
       }
@@ -474,25 +544,38 @@ app
         ...result[0],
         ...result[1],
         ...result[2],
-        ...(result?.length >= 4 ? result[3] : []),
+        ...result[3],
+        ...(result.length >= 5 ? result[4] : []),
       ];
+
+      // console.log({ result });
     }
 
     result.sort((a, b) => {
       return +a["Peers"] - +b["Peers"];
     });
 
+    // console.log("------------------------------------");
+    // result.map((torrent) => {
+    //   console.log(
+    //     `${torrent["Title"]} => ${torrent["Peers"]} => ${torrent["Tracker"]}\r`
+    //   );
+    // });
+    // console.log("------------------------------------");
+
     // result = result?.length >= 10 ? result.splice(-10) : result;
-    // result = result?.length >= 20 ? result.splice(-20) : result;
+    result = result?.length >= 15 ? result.splice(-15) : result;
     result.reverse();
 
     // console.log({ result });
 
     let stream_results = await Promise.all(
       result.map((torrent) => {
+        // console.log(torrent["Title"]);
+        // console.log(torrent["Peers"]);
         if (
           (torrent["MagnetUri"] != "" || torrent["Link"] != "") &&
-          torrent["Peers"] > 1
+          torrent["Peers"] >= 1
         ) {
           return streamFromMagnet(
             torrent,
