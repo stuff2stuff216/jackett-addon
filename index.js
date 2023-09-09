@@ -415,7 +415,12 @@ function getMeta(id, type) {
 
   return fetch(`https://v3-cinemeta.strem.io/meta/${type}/${tt}.json`)
     .then((res) => res.json())
-    .then((json) => json.meta)
+    .then((json) => ({
+      name: json.meta["name"],
+      year: "".includes("-")
+        ? json.meta["releaseInfo"]?.split("-")[0]
+        : json.meta["releaseInfo"],
+    }))
     .catch((err) =>
       fetch(`https://v2.sg.media-imdb.com/suggestion/t/${tt}.json`)
         .then((res) => res.json())
@@ -527,6 +532,11 @@ app
         fetchTorrent(encodeURIComponent(`${query} S${s ?? "1"}`)),
         fetchTorrent(encodeURIComponent(`${query} Season ${s ?? "1"}`)),
         fetchTorrent(encodeURIComponent(`${query} Complete`)),
+        fetchTorrent(
+          encodeURIComponent(
+            `${query} S${s?.padStart(2, "0")}E${s?.padStart(2, "0")}`
+          )
+        ),
       ];
 
       if (abs) {
@@ -544,7 +554,8 @@ app
         ...result[1],
         ...result[2],
         ...result[3],
-        ...(result?.length >= 5 ? result[4] : []),
+        ...result[4],
+        ...(result?.length >= 6 ? result[5] : []),
       ];
     }
 
