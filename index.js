@@ -417,7 +417,7 @@ function getMeta(id, type) {
     .then((res) => res.json())
     .then((json) => ({
       name: json.meta["name"],
-      year: "".includes("-")
+      year: json.meta["releaseInfo"].includes("-")
         ? json.meta["releaseInfo"]?.split("-")[0]
         : json.meta["releaseInfo"],
     }))
