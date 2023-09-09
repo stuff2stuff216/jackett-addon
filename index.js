@@ -413,16 +413,16 @@ let fetchTorrent = async (query) => {
 function getMeta(id, type) {
   var [tt, s, e] = id.split(":");
 
-  return fetch(`https://v2.sg.media-imdb.com/suggestion/t/${tt}.json`)
+  return fetch(`https://v3-cinemeta.strem.io/meta/${type}/${tt}.json`)
     .then((res) => res.json())
-    .then((json) => {
-      return json.d[0];
-    })
-    .then(({ l, y }) => ({ name: l, year: y }))
+    .then((json) => json.meta)
     .catch((err) =>
-      fetch(`https://v3-cinemeta.strem.io/meta/${type}/${tt}.json`)
+      fetch(`https://v2.sg.media-imdb.com/suggestion/t/${tt}.json`)
         .then((res) => res.json())
-        .then((json) => json.meta)
+        .then((json) => {
+          return json.d[0];
+        })
+        .then(({ l, y }) => ({ name: l, year: y }))
     );
 }
 
