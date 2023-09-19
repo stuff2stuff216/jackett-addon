@@ -74,7 +74,7 @@ const toStream = async (
       //
       setTimeout(() => {
         resolve([]);
-      }, 20000); // Too slooooow, the server is too slow
+      }, 17000); // Too slooooow, the server is too slow
     });
 
     parsed.files = res;
