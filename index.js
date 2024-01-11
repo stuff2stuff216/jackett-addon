@@ -363,8 +363,8 @@ const streamFromMagnet = (
 let stream_results = [];
 let torrent_results = [];
 
-const host = "http://1.156.186.156:9117";
-const apiKey = "lfc52616kbv1ziq9iyidtyzccjgjfvqf";
+const host = "http://107.174.205.19:9117";
+const apiKey = "lob0qltgax72dudgufn7onjr7nx2rscw";
 
 let fetchTorrent = async (query) => {
   // let url = `${host}/api/v2.0/indexers/all/results?apikey=${apiKey}&Category%5B%5D=2000&Category%5B%5D=5000&Query=${query}&Tracker%5B%5D=kickasstorrents-ws&Tracker%5B%5D=thepiratebay`;
